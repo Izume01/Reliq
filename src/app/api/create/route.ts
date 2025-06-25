@@ -18,6 +18,27 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        if (body.timetolive && (typeof body.timetolive !== 'number' || body.timetolive <= 0)) {
+            return NextResponse.json({
+                error: "Invalid time to live value"
+            }, {
+                status: 400
+            });
+        }
+
+        if (body.timetolive) {
+            body.timetolive = parseInt(body.timetolive as string, 10);
+            if (isNaN(body.timetolive)) {
+            return NextResponse.json({
+                error: "Invalid time to live value"
+            }, {
+                status: 400
+            });
+            }
+        }
+
+
+
         const content = body.content
 
         let slug: string;
