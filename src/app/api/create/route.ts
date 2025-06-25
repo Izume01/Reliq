@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
-import prisma from "@/lib/primsa";
+import prisma from "@/lib/db/primsa";
 import * as bcrypt from "bcrypt-ts";
-import redis from "@/lib/redis";
+import redis from "@/lib/db/redis";
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-
+        console.log("Received body:", body);
+        
         // Validate required fields
         if (!body.content || typeof body.content !== 'string') {
             return NextResponse.json({
@@ -41,16 +42,24 @@ export async function POST(request: NextRequest) {
         if (body.password && body.password.trim()) {
             passwordHash = await bcrypt.hash(body.password, 12);
         }
-
+    
         // Create the slug record
-        await prisma.slug.create({
-            data: {
-                slug,
-                passwordHash
-            }
-        });
-        
-        const expiry = Math.min(Math.max(body.expiry || 3600, 60), 86400); 
+        try {
+            await prisma.slug.create({
+                data: {
+                    slug,
+                    passwordHash
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            return  NextResponse.json({
+                error: error,
+            })
+        }
+
+    
+        const expiry  = body.timetolive || 300;  
         await redis.set(slug, content, {
             ex: expiry
         });

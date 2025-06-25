@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/primsa";
-import redis from "@/lib/redis";
+import prisma from "@/lib/db/primsa";
+import redis from "@/lib/db/redis";
 import * as bcrypt from "bcrypt-ts";
 
 export async function POST(request : NextRequest) {

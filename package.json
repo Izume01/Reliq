@@ -12,11 +12,14 @@
     "@prisma/client": "6.8.2",
     "@upstash/redis": "^1.35.0",
     "bcrypt-ts": "^7.1.0",
+    "lucide-react": "^0.523.0",
     "nanoid": "^5.1.5",
     "next": "15.3.4",
     "prisma": "^6.10.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
