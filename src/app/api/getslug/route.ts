@@ -12,6 +12,9 @@ export async function POST(request : NextRequest) {
      */
     const body = await request.json();
 
+    console.log("body", body);
+    
+
     const slugExists = await prisma.slug.findUnique({
         where : {
             slug : body.slug

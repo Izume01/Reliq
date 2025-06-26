@@ -79,7 +79,16 @@ export async function POST(request: NextRequest) {
             })
         }
 
-    
+        // update the passwordrequired field
+        if (passwordHash) {
+            await prisma.slug.update({
+                where : {slug} , 
+                data :{
+                    passwordRequired: true
+                }
+            })
+        }
+        
         const expiry  = body.timetolive || 300;  
         await redis.set(slug, content, {
             ex: expiry
