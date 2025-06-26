@@ -10,6 +10,8 @@ const SecretButton = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [data, setData] = useState(null);
+  
+  
 
   const handleCreateSecret = async () => {
     setIsLoading(true);
@@ -74,7 +76,7 @@ const SecretButton = () => {
 
   return (
     <button
-      className="w-full px-5 py-3 text-sm font-medium text-white bg-blue-500 rounded-2xl shadow-sm hover:bg-blue-600 transition duration-200"
+      className="w-full px-5 py-3 mt-5   text-sm font-medium text-white bg-blue-500 rounded-2xl shadow-sm hover:bg-blue-600 transition duration-200"
       onClick={handleCreateSecret}
       disabled={isLoading || isSuccess}
     >
@@ -83,4 +85,4 @@ const SecretButton = () => {
   );
 };
 
-export default SecretButton;
+export default SecretButton

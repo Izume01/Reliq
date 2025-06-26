@@ -16,7 +16,6 @@ export default function Home() {
                 </p>
                 <NoteInput/>                
                 <OptionSecret/>
-                <SecretButton/>
                 
             </div>
         </div>

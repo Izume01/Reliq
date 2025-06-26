@@ -1,66 +1,66 @@
-# 🔐 Reliq — Share Secrets That Don't Overstay
+# Reliq — Share Secrets That Don't Overstay
 
-> _We believe not everything should last forever._  
-> Reliq lets you share sensitive messages and files that **expire automatically** — with no accounts, no logs, and no clutter.  
-> Think of it as the **Signal** for secure file and message sharing.
+> Reliq is a secure platform for sharing sensitive messages and files that expire automatically.  
+> No accounts, no logs, no unnecessary complexity.  
+> Designed for privacy-focused, temporary sharing.
 
-![Reliq Banner](./public/banner.png) <!-- Replace with actual image if available -->
-
----
-
-## ✨ Features
-
-- 🔒 **End-to-End Encryption** — Messages protected from start to finish
-- ⏰ **Self-Destructing Links** — Auto-delete after view or timer expiry
-- 🧪 **One-Time View** — Secret vanishes after being read once
-- 🎨 **Beautiful, Calm UI** — Designed for trust, not noise
-- 🔐 **Optional Password Lock** — Extra layer of protection
-- 📱 **Fully Responsive** — Mobile-first sharing
-- ⚡ **No Sign-Up Needed** — Dead simple, frictionless UX
+![Reliq Banner](./public/banner.png)
 
 ---
 
-## 🖼️ Screenshots
+## Features
+
+- End-to-end encryption for all messages
+- Self-destructing links that auto-delete after viewing or upon expiration
+- One-time view: secrets are deleted after being accessed
+- Clean, minimal user interface
+- Optional password protection for added security
+- Fully responsive design for all devices
+- No sign-up required
+
+---
+
+## Screenshots
 
 <!-- Add screenshots of your app here -->
 
 ---
 
-## 🛠️ Tech Stack
+## Technology Stack
 
-| Layer     | Tech                                      |
-|-----------|-------------------------------------------|
+| Layer     | Technology                                 |
+|-----------|--------------------------------------------|
 | Frontend  | Next.js 15, React 19, Tailwind CSS, TypeScript |
 | Backend   | API Routes (Next.js)                       |
 | Database  | PostgreSQL via Prisma ORM                  |
 | Caching   | Redis (Upstash)                            |
 | Auth      | bcrypt-ts (for password hashing)           |
-| ID Gen    | `nanoid` (8-char secure slugs)             |
+| ID Gen    | nanoid (8-character secure slugs)          |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18 or higher
 - PostgreSQL instance
 - Redis (e.g. [Upstash](https://upstash.com))
 - pnpm (or npm)
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository
    ```bash
    git clone <your-repo-url>
    cd serectsapp
    ```
 
-2. **Install dependencies**
+2. Install dependencies
    ```bash
    pnpm install
    ```
 
-3. **Set up environment variables**
+3. Configure environment variables  
    Create a `.env.local` file in the root directory:
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/secret_share"
@@ -68,43 +68,42 @@
    UPSTASH_REDIS_REST_TOKEN="your-redis-token"
    ```
 
-4. **Set up the database**
+4. Set up the database
    ```bash
    pnpm prisma generate
    pnpm prisma db push
    ```
 
-5. **Run the development server**
+5. Start the development server
    ```bash
    pnpm dev
    ```
 
-6. **Open your browser**
-   Go to [http://localhost:3000](http://localhost:3000)
+6. Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 📖 Usage
+## Usage
 
 ### Creating a Secret
 
 1. Visit the homepage
 2. Enter your secret message in the text area
-3. (Optional) Set a password for extra security
-4. Choose an expiration time (5 minutes to 24 hours)
-5. Click **Create Secret Link**
+3. Optionally set a password for additional security
+4. Choose an expiration time (from 5 minutes to 24 hours)
+5. Click "Create Secret Link"
 6. Share the generated link with your recipient
 
 ### Viewing a Secret
 
-1. Click on a secret link
+1. Open the secret link
 2. If password protected, enter the password
 3. View the secret message
-4. The secret is automatically destroyed after viewing
+4. The secret is deleted after viewing
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -130,7 +129,7 @@ model Slug {
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 serectsapp/
@@ -157,29 +156,29 @@ serectsapp/
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
-- **Password Hashing**: All passwords are hashed using bcrypt with 12 salt rounds
-- **Unique Slugs**: 8-character unique identifiers generated using nanoid
-- **One-Time Access**: Secrets are permanently deleted after viewing
-- **Automatic Expiration**: Redis TTL ensures secrets expire even if not viewed
-- **No Logging**: Sensitive data is never logged
-- **Input Validation**: All inputs are validated and sanitized
+- Passwords are hashed using bcrypt with 12 salt rounds
+- Unique 8-character slugs generated with nanoid
+- One-time access: secrets are deleted after viewing
+- Automatic expiration using Redis TTL
+- No sensitive data is logged
+- Input validation and sanitization throughout
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
 1. Push your code to GitHub
 2. Connect your repository to Vercel
 3. Add environment variables in the Vercel dashboard
-4. Deploy!
+4. Deploy
 
 ### Other Platforms
 
-The app can be deployed to any platform that supports Next.js:
+The application can be deployed to any platform that supports Next.js, including:
 - Netlify
 - Railway
 - DigitalOcean App Platform
@@ -187,25 +186,20 @@ The app can be deployed to any platform that supports Next.js:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Describe your feature'`)
+4. Push to your branch (`git push origin feature/your-feature`)
+5. Open a pull request
 
 ---
 
-## 📝 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+## Support
 
----
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
+If you encounter issues or have questions:
 
 1. Check the [Issues](../../issues) page
 2. Create a new issue with detailed information
@@ -213,15 +207,15 @@ If you encounter any issues or have questions:
 
 ---
 
-## 🔮 Roadmap
+## Roadmap
 
-- [ ] Rate limiting
-- [ ] File attachments
-- [ ] Custom domains
-- [ ] Analytics dashboard
-- [ ] API documentation
-- [ ] Mobile app
+- Rate limiting
+- File attachments
+- Custom domains
+- Analytics dashboard
+- API documentation
+- Mobile application
 
 ---
 
-Made with ❤️ using Next.js, Prisma, and Redis
+Built with Next.js, Prisma, and Redis.
