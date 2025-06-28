@@ -9,54 +9,52 @@ const OptionSecret = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        setIsOpen(notes.length > 0);
+        setIsOpen(notes.trim().length > 0);
     }, [notes]);
 
-
+    if (!isOpen) return null;
 
     return (
-        <div className="w-full">
-            {
-                isOpen && (
-                    <>
-                        <div className="flex flex-row gap-4">
-                            {/* Password */}
-                            <div className="flex flex-1 flex-col gap-2">
-                                <label className="text-gray-300 font-medium" htmlFor="password">
-                                    Password (Optional)
-                                </label>
-                                <Input
-                                    type="password"
-                                    id="password"
-                                    placeholder="Enter your password here..."
-                                    value={password as string}
-                                    onChange={(e) => setPassword(e.target.value)}/>
-                            </div>
+        <div className="w-full space-y-6 b p-6 rounded-xl">
+            <div className="flex flex-col sm:flex-row gap-6">
+                <div className="flex-1 flex flex-col gap-3">
+                    <label htmlFor="password" className="font-medium text-neutral-300">
+                        Password (optional)
+                    </label>
+                    <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Set a password if needed"
+                        className="px-4 py-3 rounded-lg bg-[#121212] text-white border border-[#2a2a2a] 
+                        placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#3b3b3b] 
+                        transition-all duration-200 hover:border-[#3b3b3b]"
+                    />
+                </div>
 
-                            {/* Time to Live */}
-                            <div className="flex flex-1 flex-col gap-2">
-                                <label className="text-gray-300 font-medium" htmlFor="expiration">
-                                    Expiration
-                                </label>
-                                <select
-                                    id="expiration"
-                                    value={timetolive}
-                                    onChange={(e) => setTimetolive(Number(e.target.value))}
-                                    className="w-full px-5 py-3 text-sm border border-gray-700 bg-gray-950 text-gray-100 placeholder-gray-500 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 appearance-none"
-                                >
-                                    <option value={0}>Select Time to Live</option>
-                                    <option value={300}>5 minutes</option>
-                                    <option value={600}>10 minutes</option>
-                                    <option value={1800}>30 minutes</option>
-                                </select>
+                <div className="flex-1 flex flex-col gap-3">
+                    <label htmlFor="ttl" className=" font-medium text-neutral-300">
+                        Expiration
+                    </label>
+                    <select
+                        id="ttl"
+                        value={timetolive}
+                        onChange={(e) => setTimetolive(Number(e.target.value))}
+                        className="w-full px-4 py-3.5 rounded-xl bg-[#111111] text-neutral-600 border border-[#2a2a2a]
+                                 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-[#444] focus:border-transparent
+                                 transition-all duration-200 hover:bg-[#141414] hover:border-[#333] cursor-pointer appearance-none"
+                    >
+                        <option value={0}>Select expiry</option>
+                        <option value={300}>5 minutes</option>
+                        <option value={600}>10 minutes</option>
+                        <option value={1800}>30 minutes</option>
+                    </select>
 
-                            </div>
-                        </div>
-                        <SecretButton/></>
-                )
-            }
-            
-            
+                </div>
+            </div>
+
+            <SecretButton />
         </div>
     );
 };

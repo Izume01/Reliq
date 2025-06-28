@@ -1,34 +1,37 @@
-import WithoutPassword from '@/components/common/Slugs/WithoutPassword';
-import WithPassword from '@/components/common/Slugs/WithPassword';
-import prisma from '@/lib/db/primsa';
-import React from 'react';
+import { notFound } from "next/navigation";
+import prisma from "@/lib/db/primsa";
+import WithoutPassword from "@/components/common/Slugs/WithoutPassword";
+import WithPassword from "@/components/common/Slugs/WithPassword";
+import React from "react";
 
-const slugPage = async ({ params }: { params: { slug: string } }) => {
-  const { slug } = params;
+type Props = {
+  params: {
+    slug: string[];
+  };
+};
 
-  console.log(slug);
-  
-  const userSlug  = slug[0]
+const SlugPage = async (props: Props) => {
+  const { slug } = props.params;
+  const userSlug = slug?.[0];
+
+  if (!userSlug) return notFound();
+
   const meta = await prisma.slug.findUnique({
-    where: { slug : userSlug },
+    where: { slug: userSlug },
     select: { passwordRequired: true },
   });
 
-  if (!meta) {
-    return <div>Slug not found</div>;
-  }
+  if (!meta) return notFound();
 
   return (
-    <div>
-      {
-        meta.passwordRequired ? (
-          <WithPassword slug={userSlug}/>
-        ) : (
-          <WithoutPassword slug={userSlug} />
-        )
-      }
-    </div>
+    <>
+      {meta.passwordRequired ? (
+        <WithPassword slug={userSlug} />
+      ) : (
+        <WithoutPassword slug={userSlug} />
+      )}
+    </>
   );
 };
 
-export default slugPage;
+export default SlugPage;

@@ -2,40 +2,25 @@
 import React, { useState } from "react";
 import useSecret from "@/lib/store/secret";
 import toast from "react-hot-toast";
+import { CheckCircle, Loader2 } from "lucide-react";  
 
 const SecretButton = () => {
   const { notes, timetolive, password } = useSecret();
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [data, setData] = useState(null);
-  
-  
 
   const handleCreateSecret = async () => {
-    setIsLoading(true);
-    setIsError(false);
-    setErrorMessage("");
-
-    if (notes.length === 0) {
-      setIsError(true);
-      const msg = "Please enter a note";
-      setErrorMessage(msg);
-      toast.error(msg);
-      setIsLoading(false);
+    if (!notes.trim()) {
+      toast.error("Please enter a note");
       return;
     }
-
     if (timetolive === 0) {
-      setIsError(true);
-      const msg = "Please select a time to live";
-      setErrorMessage(msg);
-      toast.error(msg);
-      setIsLoading(false);
+      toast.error("Please select a time to live");
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await fetch("/api/create", {
         method: "POST",
@@ -47,28 +32,21 @@ const SecretButton = () => {
       });
 
       if (!response.ok) {
-        setIsError(true);
-        const msg = "Failed to create secret";
-        setErrorMessage(msg);
-        toast.error(msg);
-        setIsLoading(false);
+        toast.error("Failed to create secret");
         return;
       }
 
       const data = await response.json();
       setData(data);
       setIsSuccess(true);
+      toast.success("Secret created!");
 
-      // Reset button after 2 seconds
       setTimeout(() => {
         setIsSuccess(false);
         setData(null);
-      }, 2000);
-    } catch (error) {
-      setIsError(true);
-      const msg = "An error occurred";
-      setErrorMessage(msg);
-      toast.error(msg);
+      }, 2500);
+    } catch {
+      toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -76,13 +54,30 @@ const SecretButton = () => {
 
   return (
     <button
-      className="w-full px-5 py-3 mt-5   text-sm font-medium text-white bg-blue-500 rounded-2xl shadow-sm hover:bg-blue-600 transition duration-200"
+      className={`w-full px-5 py-3 mt-6 rounded-xl text-sm font-medium transition-all duration-200 
+      ${
+        isSuccess
+          ? "bg-green-600 text-white cursor-default"
+          : "bg-[#1f1f1f] hover:bg-[#2a2a2a] text-white border border-[#2c2c2c] shadow-md"
+      } ${isLoading && "opacity-60 cursor-not-allowed"}`}
       onClick={handleCreateSecret}
       disabled={isLoading || isSuccess}
     >
-      {isLoading ? "Creating..." : isSuccess ? "Secret Created" : "Create Secret"}
+      {isLoading ? (
+        <div className="flex items-center justify-center gap-2">
+          <Loader2 className="animate-spin h-4 w-4" />
+          Creating...
+        </div>
+      ) : isSuccess ? (
+        <div className="flex items-center justify-center gap-2">
+          <CheckCircle className="h-4 w-4" />
+          Secret Created
+        </div>
+      ) : (
+        "Create Secret"
+      )}
     </button>
   );
 };
 
-export default SecretButton
+export default SecretButton;
