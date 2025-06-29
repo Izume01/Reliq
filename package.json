@@ -13,6 +13,7 @@
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.35.0",
     "bcrypt-ts": "^7.1.0",
+    "critters": "^0.0.25",
     "lucide-react": "^0.523.0",
     "nanoid": "^5.1.5",
     "next": "15.3.4",
