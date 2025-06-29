@@ -3,9 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import dynamic from "next/dynamic";
 
-const Toaster = dynamic(() => import("react-hot-toast").then(mod => mod.Toaster), { 
-  ssr: false,
-  loading: () => null 
+const ToasterProvider = dynamic(() => import("@/components/layout/ToasterProvider"), {
+  ssr: true
 });
 
 const ModalProvider = dynamic(() => import("@/components/layout/ModalProvider"), {
@@ -66,7 +65,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        <Toaster />
+        <ToasterProvider />
         <ModalProvider>
           {children}
         </ModalProvider>
@@ -74,3 +73,4 @@ export default function RootLayout({
     </html>
   );
 }
+
