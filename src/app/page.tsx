@@ -8,7 +8,27 @@ const metadata = {
   description: "A minimalist note-sharing tool with built-in privacy. Encrypt, expire, and vanish like a ninja.",
 };
 
+export const dynamic = 'force-static';
+export const fetchCache = 'force-cache';
+export const revalidate = false;
+
+const FeatureIcon = ({ icon: Icon, label }: { icon: React.ElementType, label: string }) => (
+  <span
+    className="bg-[#141414] px-3 py-1.5 rounded-full border border-[#2a2a2a] flex items-center gap-2"
+  >
+    <Icon className="w-4 h-4" strokeWidth={2} />
+    {label}
+  </span>
+);
+
 export default function Home() {
+  const features = [
+    { icon: Fingerprint, label: "Password Protected" },
+    { icon: Timer, label: "Self-Destruct" },
+    { icon: Box, label: "Encrypted Storage" },
+    { icon: ShieldCheck, label: "No Logs" },
+  ];
+
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white font-sans px-6 pt-28 pb-28 flex flex-col items-center relative">
       {/* Floating Header */}
@@ -19,27 +39,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Hero Section */}
       <header className="text-center max-w-2xl mt-6 mb-20">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-sm text-neutral-400 mb-6">
-          {[
-            { icon: Fingerprint, label: "Password Protected" },
-            { icon: Timer, label: "Self-Destruct" },
-            { icon: Box, label: "Encrypted Storage" },
-            { icon: ShieldCheck, label: "No Logs" },
-          ].map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className="bg-[#141414] px-3 py-1.5 rounded-full border border-[#2a2a2a] flex items-center gap-2"
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </span>
+          {features.map(({ icon, label }) => (
+            <FeatureIcon key={label} icon={icon} label={label} />
           ))}
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight">
+        
+        <h1 
+          className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight"
+          id="main-heading"
+        >
           Share notes. Burn after reading.
         </h1>
+        
         <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto">
           A minimalist note-sharing tool with built-in privacy. Encrypt, expire, and vanish like a ninja.
         </p>

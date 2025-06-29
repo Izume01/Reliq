@@ -1,17 +1,29 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
-import ModalProvider from "@/components/layout/ModalProvider";
+import dynamic from "next/dynamic";
+
+const Toaster = dynamic(() => import("react-hot-toast").then(mod => mod.Toaster), { 
+  ssr: false,
+  loading: () => null 
+});
+
+const ModalProvider = dynamic(() => import("@/components/layout/ModalProvider"), {
+  ssr: true
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -32,8 +44,8 @@ export const metadata: Metadata = {
     description: "Share sensitive information securely with self-destructing links.",
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 };
 
@@ -44,6 +56,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
+      <head>
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
