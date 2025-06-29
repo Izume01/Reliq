@@ -1,8 +1,18 @@
-"use client";
+import { Metadata } from "next";
 import React from "react";
 import NoteInput from "@/components/common/NoteInput";
 import OptionSecret from "@/components/common/OptionSecret";
 import { Fingerprint, Timer, Box, ShieldCheck } from "lucide-react";
+
+export const metadata : Metadata = {
+  title: "SecureContent – Share notes. Burn after reading.",
+  description: "A minimalist note-sharing tool with built-in privacy. Encrypt, expire, and vanish like a ninja.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
 
 export default function Home() {
   return (
