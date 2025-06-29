@@ -1,7 +1,6 @@
 export default function Head() {
   return (
     <>
-      {/* Preload critical resources */}
       <link
         rel="preload"
         href="/_next/static/chunks/main.js"

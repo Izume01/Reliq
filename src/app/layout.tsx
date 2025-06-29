@@ -26,20 +26,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Secret Share - Secure Self-Destructing Messages",
+  title: "Reliq - Secure Self-Destructing Messages",
   description: "Share sensitive information securely with self-destructing links. No registration required, end-to-end encryption, and automatic expiration.",
   keywords: ["secret sharing", "secure messaging", "self-destructing", "encryption", "password protection"],
-  authors: [{ name: "Secret Share" }],
-  creator: "Secret Share",
+  authors: [{ name: "Reliq" }],
+  creator: "Reliq",
   openGraph: {
-    title: "Secret Share - Secure Self-Destructing Messages",
+    title: "Reliq - Secure Self-Destructing Messages",
     description: "Share sensitive information securely with self-destructing links.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Secret Share - Secure Self-Destructing Messages",
+    title: "Reliq - Secure Self-Destructing Messages",
     description: "Share sensitive information securely with self-destructing links.",
   },
   robots: {
