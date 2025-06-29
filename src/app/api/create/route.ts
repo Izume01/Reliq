@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import prisma from "@/lib/db/primsa";
 import * as bcrypt from "bcrypt-ts";
 import redis from "@/lib/db/redis";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
     try {
@@ -77,10 +78,43 @@ export async function POST(request: NextRequest) {
             }
         } while (await prisma.slug.findUnique({ where: { slug } }));
 
-        // Hash password if provided
+        // Handle encrypted password if provided
         let passwordHash: string | null = null;
         if (body.password && body.password.trim()) {
-            passwordHash = await bcrypt.hash(body.password, 12);
+            try {
+                // Decrypt the password from client
+                const [passwordIv, encryptedPassword, passwordTag] = body.password.split(':');
+                
+                if (!passwordIv || !encryptedPassword || !passwordTag) {
+                    throw new Error("Invalid encrypted password format");
+                }
+                
+                const Key = process.env.NEXT_PUBLIC_AES_HEX;
+                if (!Key || Key.length !== 64) {
+                    throw new Error('Key must be a 64-character hexadecimal string for AES-256.');
+                }
+                
+                const key = Buffer.from(Key, 'hex');
+                const decipher = crypto.createDecipheriv(
+                    'aes-256-gcm', 
+                    key, 
+                    Buffer.from(passwordIv, 'hex')
+                );
+                
+                decipher.setAuthTag(Buffer.from(passwordTag, 'hex'));
+                let decryptedPassword = decipher.update(encryptedPassword, 'hex', 'utf8');
+                decryptedPassword += decipher.final('utf8');
+                
+                // Hash the decrypted password
+                passwordHash = await bcrypt.hash(decryptedPassword, 12);
+            } catch (error) {
+                console.error("Password decryption error:", error);
+                return NextResponse.json({
+                    error: "Invalid password encryption"
+                }, {
+                    status: 400
+                });
+            }
         }
     
         // Create the slug record

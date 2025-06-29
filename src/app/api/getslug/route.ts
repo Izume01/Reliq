@@ -30,6 +30,8 @@ export async function POST(request : NextRequest) {
     const dbPasswordHash = slugExists.passwordHash; 
 
     if(dbPasswordHash) {
+        // The password is not encrypted here since we're on the client side
+        // Just directly compare with bcrypt
         const isPasswordCorrect = await bcrypt.compare(body.password, dbPasswordHash);
 
         if(!isPasswordCorrect) {

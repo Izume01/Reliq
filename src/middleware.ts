@@ -9,8 +9,9 @@ const redis = new Redis({
 
 const ratelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(10, "60 s"), 
-  analytics: true,
+  limiter: Ratelimit.fixedWindow(10, "60 s"),
+  analytics: false,
+  prefix: "@upstash/ratelimit",
 });
 
 export default async function middleware(req: NextRequest) {
@@ -20,7 +21,17 @@ export default async function middleware(req: NextRequest) {
   const result = await ratelimit.limit(ip);
 
   const redisKey = `@upstash/ratelimit:${ip}`;
-  await redis.expire(redisKey, 60); 
+  await redis.expire(redisKey, 60);
+
+  // Expire analytics key if TTL not already set
+  const analyticsKey = `@upstash/ratelimit:events:${Math.floor(
+    Date.now() / (24 * 60 * 60 * 1000)
+  )}`;
+
+  const ttl = await redis.ttl(analyticsKey);
+  if (ttl === -1) {
+    await redis.expire(analyticsKey, 24 * 60 * 60); // Expire in 24h
+  }
 
   if (!result.success) {
     return new NextResponse(
