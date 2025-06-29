@@ -7,7 +7,6 @@ import redis from "@/lib/db/redis";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        console.log("Received body:", body);
         
         // Validate required fields
         if (!body.content || typeof body.content !== 'string') {
@@ -37,7 +36,27 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        const tag = body.tag;
+        const iv = body.iv;
 
+        // Validate encryption parameters
+        if (!tag || typeof tag !== 'string' || tag.length !== 32) {
+            return NextResponse.json({
+                error: "Invalid tag"
+            }, {
+                status: 400
+            }); 
+        }
+
+        if (!iv || typeof iv !== 'string' || iv.length !== 32) {
+            return NextResponse.json({
+                error: "Invalid IV"
+            }, {
+                status: 400
+            });
+        }
+
+        
 
         const content = body.content
 
@@ -69,7 +88,9 @@ export async function POST(request: NextRequest) {
             await prisma.slug.create({
                 data: {
                     slug,
-                    passwordHash
+                    passwordHash,
+                    iv, 
+                    tag,
                 }
             });
         } catch (error) {

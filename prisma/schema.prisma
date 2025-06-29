@@ -18,6 +18,8 @@ model Slug {
   id           Int      @id @default(autoincrement())
   slug         String   @unique
   passwordHash String?
+  iv           String
+  tag          String
   passwordRequired Boolean @default(false)
   createdAt    DateTime @default(now())
   viewedAt     Boolean  @default(false)
