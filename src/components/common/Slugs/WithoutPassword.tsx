@@ -38,10 +38,10 @@ const WithoutPassword: React.FC<WithoutPasswordProps> = ({ slug }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0c0c0c] to-[#151515] text-white font-sans antialiased px-6 py-16 flex flex-col items-center">
       <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
+        <h1 className="text-3xl font-bold tracking-tight mb-2 font-dancing-script">
            Accessing: <span className="text-neutral-300 font-mono">{slug}</span>
         </h1>
-        <p className="text-neutral-400 text-sm max-w-md mx-auto">
+        <p className="text-neutral-400 text-sm max-w-md mx-auto font-roboto">
           This content is public. No password required to view the decrypted data.
         </p>
       </div>

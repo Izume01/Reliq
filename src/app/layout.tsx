@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Dancing_Script, Geist, Geist_Mono, Pacifico , Caveat , Roboto} from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
+import dynamic from "next/dynamic"; 
 
 const ToasterProvider = dynamic(() => import("@/components/layout/ToasterProvider"), {
   ssr: true
@@ -9,6 +9,18 @@ const ToasterProvider = dynamic(() => import("@/components/layout/ToasterProvide
 
 const ModalProvider = dynamic(() => import("@/components/layout/ModalProvider"), {
   ssr: true
+});
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dancing-script",
+});
+
+const pacifico = Pacifico({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-pacifico",
 });
 
 const geistSans = Geist({
@@ -23,6 +35,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: 'swap',
   preload: false,
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-caveat",
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-roboto",
 });
 
 export const metadata: Metadata = {
@@ -63,7 +87,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${geistSans.variable} ${geistMono.variable}  ${dancingScript.variable} ${pacifico.variable} ${caveat.variable} ${roboto.variable} antialiased h-full`}
       >
         <ToasterProvider />
         <ModalProvider>

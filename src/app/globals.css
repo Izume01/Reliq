@@ -1,3 +1,11 @@
 @import "tailwindcss";
 
 
+@theme {
+    --font-dancing-script: var(--font-dancing-script);
+    --font-pacifico: var(--font-pacifico);
+    --font-geist-sans: var(--font-geist-sans);
+    --font-geist-mono: var(--font-geist-mono);
+    --font-caveat: var(--font-caveat);
+    --font-roboto: var(--font-roboto);
+}

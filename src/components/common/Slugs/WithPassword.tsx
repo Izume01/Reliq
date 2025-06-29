@@ -46,10 +46,10 @@ const WithPassword = ({ slug }: { slug: string }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md px-4">
                     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl w-full max-w-md p-8 shadow-2xl flex flex-col items-center transform transition-all duration-300 scale-100">
 
-                        <h2 className="text-xl font-bold mb-3 tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                        <h2 className="text-xl font-bold mb-3 tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent font-geist-sans">
                             Secure Access Required
                         </h2>
-                        <p className="text-sm text-neutral-400 mb-8 text-center max-w-sm">
+                        <p className="text-sm text-neutral-400 mb-8 text-center max-w-sm font-roboto">
                             This content is protected. Please enter the access password to view the encrypted data.
                         </p>
 
@@ -100,10 +100,10 @@ const WithPassword = ({ slug }: { slug: string }) => {
                 <div className="min-h-screen flex flex-col px-6 py-16">
                     <div className="text-center mb-12"> 
 
-                        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-white mb-2 font-dancing-script">
                             Content Decrypted Successfully
                         </h1>
-                        <p className="text-neutral-400 text-sm max-w-md mx-auto">
+                        <p className="text-neutral-400 text-sm max-w-md mx-auto font-roboto">
                             Your encrypted content has been successfully decrypted and is now available below.
                         </p>
                     </div>

@@ -3,6 +3,7 @@ import NoteInput from "@/components/common/NoteInput";
 import OptionSecret from "@/components/common/OptionSecret";
 import { Fingerprint, Timer, Box, ShieldCheck } from "lucide-react";
 
+
 const metadata = {
   title: "Reliq – Share notes. Burn after reading.",
   description: "A minimalist note-sharing tool with built-in privacy. Encrypt, expire, and vanish like a ninja.",
@@ -33,8 +34,8 @@ export default function Home() {
     <main className="min-h-screen bg-[#0b0b0b] text-white font-sans px-6 pt-28 pb-28 flex flex-col items-center relative">
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-6">
         <div className="w-full flex items-center justify-between bg-[#121212] border border-[#2a2a2a] shadow-sm rounded-xl px-4 py-2.5">
-          <span className="font-semibold text-white tracking-tight">Reliq</span>
-          <span className="text-xs text-neutral-500 font-mono">zero-trace · open-source · secure</span>
+          <span className="text-lg text-white font-bold   tracking-tight font-caveat ">Reliq</span>
+          <span className="text-xs text-neutral-500 font-roboto">zero-trace · open-source · secure</span>
         </div>
       </div>
 
@@ -46,7 +47,7 @@ export default function Home() {
         </div>
         
         <h1 
-          className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight"
+          className={`text-4xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight font-dancing-script`}
           id="main-heading"
         >
           Share notes. Burn after reading.
