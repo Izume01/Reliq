@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
-import BurningEffect from '@/components/common/BurningEffect';
+import BurningEffectWrapper from '@/components/common/BurningEffectWrapper';
 
 export default function NotFound() {
   return (
@@ -39,7 +39,7 @@ export default function NotFound() {
                 <p className="text-neutral-400 text-sm max-w-md mb-8">
                   It may have been deleted by the creator, reached its expiration time, or never existed.
                 </p>
-                <BurningEffect />
+                <BurningEffectWrapper />
               </div>
               
               <Link 
