@@ -3,6 +3,7 @@ import WithoutPassword from '@/components/common/Slugs/WithoutPassword';
 import WithPassword from '@/components/common/Slugs/WithPassword';
 import prisma from '@/lib/db/primsa';
 import React from 'react';
+import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   robots: {
@@ -30,7 +31,7 @@ export default async function slugPage({
   });
 
   if (!meta) {
-    return <div>Slug not found</div>;
+    notFound();
   }
 
   return (
