@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Dancing_Script, Geist, Geist_Mono, Pacifico, Caveat, Roboto } from "next/font/google";
 import "./globals.css";
 import dynamic from "next/dynamic";
+import { Analytics } from "@vercel/analytics/next"
 
 const ToasterProvider = dynamic(() => import("@/components/layout/ToasterProvider"), {
   ssr: true
@@ -98,6 +99,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}  ${dancingScript.variable} ${pacifico.variable} ${caveat.variable} ${roboto.variable} antialiased h-full`}
       >
+        <Analytics />
         <ToasterProvider />
         <ModalProvider>
           {children}
