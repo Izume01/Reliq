@@ -2,6 +2,7 @@ import React from "react";
 import NoteInput from "@/components/common/NoteInput";
 import OptionSecret from "@/components/common/OptionSecret";
 import { Fingerprint, Timer, Box, ShieldCheck } from "lucide-react";
+import AuthPanel from "@/components/auth/AuthPanel";
 
 
 const metadata = {
@@ -59,6 +60,7 @@ export default function Home() {
       </header>
 
       <section className="w-full max-w-2xl space-y-2">
+        <AuthPanel />
         <NoteInput />
         <OptionSecret />
       </section>

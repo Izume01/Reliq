@@ -15,6 +15,10 @@ const ratelimit = new Ratelimit({
 });
 
 export default async function middleware(req: NextRequest) {
+  if (req.nextUrl.pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
   const forwardedFor = req.headers.get("x-forwarded-for");
   const ip = forwardedFor?.split(",")[0]?.trim() || "anonymous";
 

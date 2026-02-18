@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "6.8.2",
@@ -14,6 +15,7 @@
     "@upstash/redis": "^1.35.0",
     "@vercel/analytics": "^1.5.0",
     "bcrypt-ts": "^7.1.0",
+    "better-auth": "^1.4.18",
     "critters": "^0.0.25",
     "lucide-react": "^0.523.0",
     "nanoid": "^5.1.5",

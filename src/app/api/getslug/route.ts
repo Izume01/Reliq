@@ -11,7 +11,15 @@ export async function POST(request : NextRequest) {
      * password
      * 
      */
-    const body = await request.json();    
+    const body = await request.json();
+
+    if (!body.slug || typeof body.slug !== "string") {
+        return NextResponse.json({
+            error: "Invalid slug"
+        }, {
+            status: 400
+        })
+    }
 
     const slugExists = await prisma.slug.findUnique({
         where : {
@@ -43,20 +51,19 @@ export async function POST(request : NextRequest) {
         }
     }
 
-    const content = await redis.get(body.slug) as string;
-    await redis.del(body.slug);
+    const redisKey = `secret:${body.slug}`;
+    let content: string | null = null;
+    if (typeof (redis as unknown as { getdel?: (key: string) => Promise<string | null> }).getdel === "function") {
+        content = await (redis as unknown as { getdel: (key: string) => Promise<string | null> }).getdel(redisKey);
+    } else {
+        content = await redis.get(redisKey) as string | null;
+        if (content) {
+            await redis.del(redisKey);
+        }
+    }
 
 
     
-    await prisma.slug.update({
-        where : {
-            slug : body.slug
-        },
-        data : {
-            viewedAt : true
-        }
-    })
-
     if(!content) {
 
         await prisma.slug.delete({
@@ -71,6 +78,15 @@ export async function POST(request : NextRequest) {
             status : 400
         })
     }
+
+    await prisma.slug.update({
+        where : {
+            slug : body.slug
+        },
+        data : {
+            viewedAt : true
+        }
+    })
 
     // now we can decode the content
     const Key = process.env.NEXT_PUBLIC_AES_HEX;

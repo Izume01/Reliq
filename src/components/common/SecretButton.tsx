@@ -4,6 +4,7 @@ import useSecret from "@/lib/store/secret";
 import toast from "react-hot-toast";
 import { CheckCircle, Loader2 } from "lucide-react";
 import crypto from "crypto";
+import { authClient } from "@/lib/auth/client";
 
 
 
@@ -12,8 +13,10 @@ const SecretButton = () => {
   const { notes, timetolive, password, setModel, setData } = useSecret();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { data: sessionData, isPending: sessionPending } = authClient.useSession();
 
   const aesKey = process.env.NEXT_PUBLIC_AES_HEX
+  const isAuthenticated = Boolean(sessionData?.user);
 
   async function ecrypt(text: string, hexKey: string) {
     if (hexKey.length !== 64) { // 32 bytes * 2 hex chars/byte = 64
@@ -52,6 +55,11 @@ const SecretButton = () => {
   }
 
   const handleCreateSecret = async () => {
+    if (!isAuthenticated) {
+      toast.error("Sign in to create a secret");
+      return;
+    }
+
     if (!notes.trim()) {
       toast.error("Please enter a note");
       return;
@@ -126,15 +134,19 @@ const SecretButton = () => {
       ${isSuccess
           ? "bg-green-600 text-white cursor-default"
           : "bg-[#1f1f1f] hover:bg-[#2a2a2a] text-white border border-[#2c2c2c] shadow-md"
-        } ${isLoading && "opacity-60 cursor-not-allowed"}`}
+        } ${isLoading || sessionPending || !isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
       onClick={handleCreateSecret}
-      disabled={isLoading || isSuccess}
+      disabled={isLoading || isSuccess || sessionPending || !isAuthenticated}
     >
       {isLoading ? (
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="animate-spin h-4 w-4" />
           Creating...
         </div>
+      ) : sessionPending ? (
+        "Checking session..."
+      ) : !isAuthenticated ? (
+        "Sign in to Create Secret"
       ) : isSuccess ? (
         <div className="flex items-center justify-center gap-2">
           <CheckCircle className="h-4 w-4" />

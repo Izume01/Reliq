@@ -1,0 +1,54 @@
+Reliq improvement draft (2026-02-02)
+
+Goal: move from “half‑baked” to production‑ready by tightening security, reliability, and developer workflow.
+
+1) CI/CD & pipelines (highest priority)
+- Add GitHub Actions (or GitLab CI) with jobs:
+  - install deps (pnpm), lint (next lint), typecheck (tsc), build (next build)
+  - Prisma generate + migrate check
+  - unit tests + API tests (once added)
+- Add preview deploys on PRs and a protected main deploy.
+- Add environment checks (fail build if required env vars missing).
+
+2) Security hardening
+- Add request validation for all API routes (zod or valibot).
+- Rate limit create + read endpoints (Upstash Ratelimit is already in deps).
+- Enforce TTL for all secrets (database + Redis) and background cleanup.
+- Store secrets encrypted at rest (server-side encryption key in env).
+- Add CSRF protection for any authenticated form routes.
+- Add proper HTTP security headers (CSP, HSTS, X-Content-Type-Options).
+
+3) Auth & access control
+- Decide: keep “no accounts” or add optional accounts.
+  - If accounts: add NextAuth/ Auth.js, email magic link, and optional MFA.
+  - If no accounts: keep password-protected secrets but improve UX.
+- Add audit logging for admin actions (if you add accounts).
+
+4) Data model & core logic
+- Expand schema: Secret table with encrypted payload, expiresAt, maxViews, createdBy.
+- Add support for file attachments (signed upload + virus scanning if needed).
+- Add deletion/expiry job (cron) to clean old secrets.
+
+5) Reliability & correctness
+- Add tests:
+  - unit tests for encryption, TTL, slug generation
+  - integration tests for API routes (create/read/expire)
+- Add error handling: consistent API error format, retries for Redis.
+- Add monitoring: request logging + basic metrics (latency, errors).
+
+6) Product polish
+- Clear onboarding: “how it works”, privacy guarantees.
+- Add expiry options, view count, and optional one-time links.
+- Add optional email notification when secret is read.
+
+7) DevX & documentation
+- Add `.env.example` and docs for local setup.
+- Add scripts: `typecheck`, `test`, `format`.
+- Update README with architecture + threat model.
+
+8) Deployment
+- Add staging environment.
+- Use migrations in CI/CD (no `db push` on prod).
+- Configure backups and restore procedure.
+
+Next step: pick the top 3 priorities and implement in order.

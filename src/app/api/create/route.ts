@@ -4,9 +4,21 @@ import prisma from "@/lib/db/primsa";
 import * as bcrypt from "bcrypt-ts";
 import redis from "@/lib/db/redis";
 import crypto from "crypto";
+import { auth } from "@/lib/auth/auth";
 
 export async function POST(request: NextRequest) {
     try {
+        const session = await auth.api.getSession({
+            headers: request.headers,
+        });
+
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
         
         // Validate required fields
@@ -125,6 +137,7 @@ export async function POST(request: NextRequest) {
                     passwordHash,
                     iv, 
                     tag,
+                    userId: session.user.id,
                 }
             });
         } catch (error) {
@@ -144,8 +157,9 @@ export async function POST(request: NextRequest) {
             })
         }
         
-        const expiry  = body.timetolive || 300;  
-        await redis.set(slug, content, {
+        const expiry  = body.timetolive || 300;
+        const redisKey = `secret:${slug}`;
+        await redis.set(redisKey, content, {
             ex: expiry
         });
 

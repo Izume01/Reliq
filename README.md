@@ -1,7 +1,7 @@
 # Reliq — Share Secrets That Don't Overstay
 
 > Reliq is a secure platform for sharing sensitive messages and files that expire automatically.  
-> No accounts, no logs, no unnecessary complexity.  
+> Minimal accounts, no unnecessary complexity.  
 > Designed for privacy-focused, temporary sharing.
 
 ![Reliq Banner](./public/banner.png)
@@ -16,7 +16,7 @@
 - Clean, minimal user interface
 - Optional password protection for added security
 - Fully responsive design for all devices
-- No sign-up required
+- Account-based access for secret creation
 
 ---
 
@@ -34,7 +34,7 @@
 | Backend   | API Routes (Next.js)                       |
 | Database  | PostgreSQL via Prisma ORM                  |
 | Caching   | Redis (Upstash)                            |
-| Auth      | bcrypt-ts (for password hashing)           |
+| Auth      | Better Auth + email/password               |
 | ID Gen    | nanoid (8-character secure slugs)          |
 
 ---
@@ -66,6 +66,8 @@
    DATABASE_URL="postgresql://username:password@localhost:5432/secret_share"
    UPSTASH_REDIS_REST_URL="your-redis-url"
    UPSTASH_REDIS_REST_TOKEN="your-redis-token"
+   BETTER_AUTH_SECRET="your-strong-random-secret"
+   BETTER_AUTH_URL="http://localhost:3000"
    ```
 
 4. Set up the database
@@ -88,11 +90,12 @@
 ### Creating a Secret
 
 1. Visit the homepage
-2. Enter your secret message in the text area
-3. Optionally set a password for additional security
-4. Choose an expiration time (from 5 minutes to 24 hours)
-5. Click "Create Secret Link"
-6. Share the generated link with your recipient
+2. Sign in or create an account
+3. Enter your secret message in the text area
+4. Optionally set a password for additional security
+5. Choose an expiration time (from 5 minutes to 24 hours)
+6. Click "Create Secret Link"
+7. Share the generated link with your recipient
 
 ### Viewing a Secret
 
@@ -112,20 +115,16 @@
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `UPSTASH_REDIS_REST_URL` | Redis REST API URL | Yes |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis REST API token | Yes |
+| `BETTER_AUTH_SECRET` | Secret used to sign auth cookies/tokens | Yes |
+| `BETTER_AUTH_URL` | Public app URL for auth callbacks/cookies | Yes |
 
 ### Database Schema
 
-The application uses a simple schema with a single `Slug` table:
-
-```prisma
-model Slug {
-  id           Int      @id @default(autoincrement())
-  slug         String   @unique
-  passwordHash String?
-  createdAt    DateTime @default(now())
-  viewedAt     Boolean  @default(false)
-}
-```
+The application uses `Slug` plus Better Auth tables:
+- `User`
+- `Session`
+- `Account`
+- `Verification`
 
 ---
 
