@@ -1,58 +1,47 @@
 "use client";
+
 import React, { useState } from "react";
-import useSecret from "@/lib/store/secret";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { CheckCircle, Loader2 } from "lucide-react";
-import crypto from "crypto";
+import useSecret from "@/lib/store/secret";
 import { authClient } from "@/lib/auth/client";
+import {
+  PASSWORD_MIN_LENGTH,
+  isSupportedMaxFailedAttempts,
+  isSupportedMaxViews,
+  isSupportedTTL,
+} from "@/lib/security/options";
+import {
+  encryptPasswordForTransport,
+  encryptTextPayload,
+} from "@/lib/security/clientCrypto";
 
+interface CreateSecretResponse {
+  slug: string;
+  expiresIn: number;
+}
 
+interface ErrorPayload {
+  error?: string;
+}
 
 const SecretButton = () => {
+  const {
+    notes,
+    timetolive,
+    password,
+    maxFailedAttempts,
+    maxViews,
+    setModel,
+    setData,
+    setPassword,
+  } = useSecret();
 
-  const { notes, timetolive, password, setModel, setData } = useSecret();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { data: sessionData, isPending: sessionPending } = authClient.useSession();
-
-  const aesKey = process.env.NEXT_PUBLIC_AES_HEX
   const isAuthenticated = Boolean(sessionData?.user);
-
-  async function ecrypt(text: string, hexKey: string) {
-    if (hexKey.length !== 64) { // 32 bytes * 2 hex chars/byte = 64
-      throw new Error('Key must be a 64-character hexadecimal string for AES-256.');
-    }
-
-    const iv = crypto.randomBytes(16); // 16 bytes IV for AES
-    const key = Buffer.from(hexKey, 'hex'); // Convert hex string to Buffer
-
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-
-    const tag = cipher.getAuthTag(); // Get the GCM authentication tag
-    return {
-      iv: iv.toString('hex'), 
-      Content: encrypted,
-      tag: tag.toString('hex') 
-    };
-  }
-  
-  // Function to encrypt password
-  async function encryptPassword(pwd: string): Promise<string> {
-    if (!pwd) return "";
-    
-    // Simple encryption for password - using a different IV for password
-    const iv = crypto.randomBytes(16);
-    const key = Buffer.from(aesKey || "", 'hex');
-    
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    let encrypted = cipher.update(pwd, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    
-    // Store IV with encrypted password, separated by a delimiter
-    return `${iv.toString('hex')}:${encrypted}:${cipher.getAuthTag().toString('hex')}`;
-  }
+  const aesKey = process.env.NEXT_PUBLIC_AES_HEX;
 
   const handleCreateSecret = async () => {
     if (!isAuthenticated) {
@@ -61,99 +50,118 @@ const SecretButton = () => {
     }
 
     if (!notes.trim()) {
-      toast.error("Please enter a note");
-      return;
-    }
-    if (timetolive === 0) {
-      toast.error("Please select a time to live");
+      toast.error("Enter secret content");
       return;
     }
 
-    if (password && password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (timetolive === 0) {
+      toast.error("Choose a TTL option");
+      return;
+    }
+
+    if (!isSupportedTTL(timetolive)) {
+      toast.error("Unsupported TTL option");
+      return;
+    }
+
+    if (!isSupportedMaxFailedAttempts(maxFailedAttempts)) {
+      toast.error("Unsupported security option");
+      return;
+    }
+
+    if (!isSupportedMaxViews(maxViews)) {
+      toast.error("Unsupported max views option");
+      return;
+    }
+
+    if (password && password.length < PASSWORD_MIN_LENGTH) {
+      toast.error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
       return;
     }
 
     if (!aesKey) {
-      toast.error("Encryption key is not set");
+      toast.error("Missing encryption key");
       return;
     }
-
-    let encryptedData;
-    try {
-      encryptedData = await ecrypt(notes, aesKey);
-    } catch (error: unknown) {
-      toast.error("Encryption failed: " + (error instanceof Error ? error.message : 'Unknown error'));
-      return;
-    }
-
-    const { iv, Content: encrypted, tag } = encryptedData;
-    
-    // Encrypt password if it exists
-    const encryptedPassword = password ? await encryptPassword(password) : "";
 
     setIsLoading(true);
     try {
+      const encrypted = await encryptTextPayload(notes, aesKey);
+      const encryptedPassword =
+        password.trim().length > 0
+          ? await encryptPasswordForTransport(password, aesKey)
+          : "";
+
       const response = await fetch("/api/create", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          content: encrypted,
-          iv,
-          tag, 
+          content: encrypted.content,
+          iv: encrypted.iv,
+          tag: encrypted.tag,
           timetolive,
-          password: encryptedPassword, // Send encrypted password
+          maxFailedAttempts,
+          maxViews,
+          password: encryptedPassword,
         }),
       });
 
       if (!response.ok) {
-        toast.error("Failed to create secret");
+        const errorPayload = (await response
+          .json()
+          .catch(() => ({}))) as ErrorPayload;
+        toast.error(errorPayload.error || "Failed to create secret");
         return;
       }
 
-      const responseData = await response.json();
-      setData(responseData);
-      setIsSuccess(true);
-      toast.success("Secret created!");
-      
-      // Show modal with the link
+      const payload = (await response.json()) as CreateSecretResponse;
+      setData(payload);
       setModel(true);
+      setIsSuccess(true);
+      setPassword("");
+      toast.success("Secret created");
 
       setTimeout(() => {
         setIsSuccess(false);
-      }, 2500);
+      }, 1800);
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Failed to encrypt and submit secret");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const disabled = isLoading || isSuccess || sessionPending || !isAuthenticated;
+
   return (
     <button
-      className={`w-full px-5 py-3 mt-6 rounded-xl text-sm font-medium transition-all duration-200 
-      ${isSuccess
-          ? "bg-green-600 text-white cursor-default"
-          : "bg-[#1f1f1f] hover:bg-[#2a2a2a] text-white border border-[#2c2c2c] shadow-md"
-        } ${isLoading || sessionPending || !isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+      type="button"
       onClick={handleCreateSecret}
-      disabled={isLoading || isSuccess || sessionPending || !isAuthenticated}
+      disabled={disabled}
+      className={`mt-1 w-full rounded-xl px-5 py-3 text-sm font-semibold transition ${
+        isSuccess
+          ? "bg-emerald-600 text-white"
+          : "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-strong)]"
+      } ${disabled ? "cursor-not-allowed opacity-65" : ""}`}
     >
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2">
-          <Loader2 className="animate-spin h-4 w-4" />
-          Creating...
-        </div>
+        <span className="flex items-center justify-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Creating secure link...
+        </span>
       ) : sessionPending ? (
         "Checking session..."
       ) : !isAuthenticated ? (
-        "Sign in to Create Secret"
+        "Sign in to create secret"
       ) : isSuccess ? (
-        <div className="flex items-center justify-center gap-2">
-          <CheckCircle className="h-4 w-4" />
-          Secret Created
-        </div>
+        <span className="flex items-center justify-center gap-2">
+          <CheckCircle2 className="h-4 w-4" />
+          Link ready
+        </span>
       ) : (
-        "Create Secret"
+        "Generate secret link"
       )}
     </button>
   );

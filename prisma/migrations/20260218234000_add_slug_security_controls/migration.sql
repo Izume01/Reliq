@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Slug"
+ADD COLUMN "maxFailedAttempts" INTEGER NOT NULL DEFAULT 5,
+ADD COLUMN "failedAttempts" INTEGER NOT NULL DEFAULT 0;

@@ -20,6 +20,11 @@ model Slug {
   iv           String
   tag          String
   passwordRequired Boolean @default(false)
+  maxFailedAttempts Int @default(5)
+  failedAttempts Int @default(0)
+  maxViews     Int      @default(1)
+  viewCount    Int      @default(0)
+  lastViewedAt DateTime?
   createdAt    DateTime @default(now())
   viewedAt     Boolean  @default(false)
   userId       String?

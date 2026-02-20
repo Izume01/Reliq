@@ -1,83 +1,148 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import useSecret from "@/lib/store/secret";
 import { Input } from "@/components/base/Input";
-import dynamic from "next/dynamic";
-
-const SecretButton = dynamic(() => import("@/components/common/SecretButton"), {
-    ssr: true,
-    loading: () => (
-        <div className="w-full px-5 py-3 mt-6 rounded-xl text-sm font-medium bg-[#1f1f1f] text-white border border-[#2c2c2c] shadow-md opacity-70">
-            Loading...
-        </div>
-    )
-});
+import SecretButton from "@/components/common/SecretButton";
+import {
+  MAX_FAILED_ATTEMPT_OPTIONS,
+  MAX_VIEW_OPTIONS,
+  TTL_OPTIONS,
+} from "@/lib/security/options";
 
 const OptionSecret = () => {
-    const { timetolive, setTimetolive, password, setPassword, notes } = useSecret();
-    const [isOpen, setIsOpen] = useState(false);
+  const {
+    timetolive,
+    setTimetolive,
+    password,
+    setPassword,
+    maxFailedAttempts,
+    setMaxFailedAttempts,
+    maxViews,
+    setMaxViews,
+  } = useSecret();
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsOpen(notes.trim().length > 0);
-        }, 100);
-        
-        return () => clearTimeout(timer);
-    }, [notes]);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPassword(e.target.value);
+    },
+    [setPassword]
+  );
 
-    const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value);
-    }, [setPassword]);
+  const handleTTLChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setTimetolive(Number(e.target.value));
+    },
+    [setTimetolive]
+  );
 
-    const handleTTLChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        setTimetolive(Number(e.target.value));
-    }, [setTimetolive]);
+  const handleMaxFailedAttempts = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setMaxFailedAttempts(Number(e.target.value));
+    },
+    [setMaxFailedAttempts]
+  );
 
-    if (!isOpen) return null;
+  const handleMaxViews = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setMaxViews(Number(e.target.value));
+    },
+    [setMaxViews]
+  );
 
-    return (
-        <div className="w-full space-y-6 p-6 rounded-xl">
-            <div className="flex flex-col sm:flex-row gap-6">
-                <div className="flex-1 flex flex-col gap-3">
-                    <label htmlFor="password" className="font-medium text-neutral-300">
-                        Password (optional)
-                    </label>
-                    <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={handlePasswordChange}
-                        placeholder="Set a password if needed"
-                        className="px-4 py-3 rounded-lg bg-[#121212] text-white border border-[#2a2a2a] 
-                        placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#3b3b3b] 
-                        transition-all duration-200 hover:border-[#3b3b3b]"
-                    />
-                </div>
+  const selectClassName =
+    "w-full appearance-none rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20";
 
-                <div className="flex-1 flex flex-col gap-3">
-                    <label htmlFor="ttl" className="font-medium text-neutral-300">
-                        Expiration
-                    </label>
-                    <select
-                        id="ttl"
-                        value={timetolive}
-                        onChange={handleTTLChange}
-                        className="w-full px-4 py-3.5 rounded-xl bg-[#111111] text-neutral-600 border border-[#2a2a2a]
-                                 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-[#444] focus:border-transparent
-                                 transition-all duration-200 hover:bg-[#141414] hover:border-[#333] cursor-pointer appearance-none"
-                        aria-label="Select expiration time"
-                    >
-                        <option value={0}>Select expiry</option>
-                        <option value={300}>5 minutes</option>
-                        <option value={600}>10 minutes</option>
-                        <option value={1800}>30 minutes</option>
-                    </select>
-                </div>
-            </div>
+  return (
+    <section className="w-full space-y-5">
+      <p className="text-sm leading-relaxed text-[var(--color-muted)]">
+        Define expiration and lockout behavior before creating the link.
+      </p>
 
-            <SecretButton />
+      <div className="grid gap-4">
+        <div className="space-y-2">
+          <label htmlFor="password" className="text-sm font-semibold text-[var(--color-ink)]">
+            Password (optional)
+          </label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+            placeholder="Add extra protection"
+            className="bg-white"
+          />
         </div>
-    );
+
+        <div className="space-y-2">
+          <label htmlFor="ttl" className="text-sm font-semibold text-[var(--color-ink)]">
+            Time to live
+          </label>
+          <select
+            id="ttl"
+            value={timetolive}
+            onChange={handleTTLChange}
+            className={selectClassName}
+            aria-label="Select expiration time"
+          >
+            {TTL_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="max-failed-attempts"
+            className="text-sm font-semibold text-[var(--color-ink)]"
+          >
+            Max failed password attempts
+          </label>
+          <select
+            id="max-failed-attempts"
+            value={maxFailedAttempts}
+            onChange={handleMaxFailedAttempts}
+            className={selectClassName}
+            aria-label="Select max failed password attempts"
+          >
+            {MAX_FAILED_ATTEMPT_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option} attempts
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-[var(--color-muted)]">
+            Lockout applies only when a password is set.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="max-views" className="text-sm font-semibold text-[var(--color-ink)]">
+            Delete after X successful views
+          </label>
+          <select
+            id="max-views"
+            value={maxViews}
+            onChange={handleMaxViews}
+            className={selectClassName}
+            aria-label="Select max successful views"
+          >
+            {MAX_VIEW_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option} {option === 1 ? "view" : "views"}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-[var(--color-muted)]">
+            Secret will be destroyed after this number of successful decryptions.
+          </p>
+        </div>
+      </div>
+
+      <SecretButton />
+    </section>
+  );
 };
 
 export default React.memo(OptionSecret);

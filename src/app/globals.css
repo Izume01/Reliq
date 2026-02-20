@@ -2,10 +2,70 @@
 
 
 @theme {
-    --font-dancing-script: var(--font-dancing-script);
-    --font-pacifico: var(--font-pacifico);
-    --font-geist-sans: var(--font-geist-sans);
-    --font-geist-mono: var(--font-geist-mono);
-    --font-caveat: var(--font-caveat);
-    --font-roboto: var(--font-roboto);
+    --font-dancing-script: "DM Serif Display", "Palatino Linotype", serif;
+    --font-pacifico: "Segoe Print", "Bradley Hand", cursive;
+    --font-geist-sans: "Avenir Next", "Segoe UI", sans-serif;
+    --font-geist-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+    --font-caveat: "Trebuchet MS", "Segoe UI", sans-serif;
+    --font-roboto: "Helvetica Neue", Arial, sans-serif;
+
+    --color-ink: #18130e;
+    --color-muted: #6a6258;
+    --color-line: #d7cbbd;
+    --color-paper: #f7f2e9;
+    --color-surface: #fffaf1;
+    --color-accent: #b45b21;
+    --color-accent-strong: #8d3f0f;
 }
+
+:root {
+    color-scheme: light;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--color-ink);
+    background:
+        radial-gradient(circle at 15% 15%, rgba(244, 214, 181, 0.42), transparent 40%),
+        radial-gradient(circle at 85% 0%, rgba(214, 170, 123, 0.26), transparent 35%),
+        linear-gradient(180deg, #fbf7ee 0%, #f4ecde 100%);
+}
+
+/* FAQ accordion */
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details summary {
+    list-style: none;
+}
+
+details summary::marker {
+    display: none;
+    content: "";
+}
+
+@keyframes fade-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+

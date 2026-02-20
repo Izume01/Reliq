@@ -17,6 +17,9 @@
 - Optional password protection for added security
 - Fully responsive design for all devices
 - Account-based access for secret creation
+- Dedicated landing, login, signup, create, and dashboard pages
+- Expanded TTL presets (1 minute to 7 days)
+- Password brute-force lockout controls (max failed attempts)
 
 ---
 
@@ -73,7 +76,7 @@
 4. Set up the database
    ```bash
    pnpm prisma generate
-   pnpm prisma db push
+   pnpm prisma migrate deploy
    ```
 
 5. Start the development server
@@ -91,11 +94,17 @@
 
 1. Visit the homepage
 2. Sign in or create an account
-3. Enter your secret message in the text area
-4. Optionally set a password for additional security
-5. Choose an expiration time (from 5 minutes to 24 hours)
-6. Click "Create Secret Link"
+3. Go to `/create`
+4. Enter your secret message
+5. Optionally set a password, expiry, and max failed attempts
+6. Click "Create Secret"
 7. Share the generated link with your recipient
+
+### Managing Secrets
+
+1. Open `/dashboard`
+2. Review active account-owned secrets and remaining TTL
+3. Copy links or revoke any secret instantly
 
 ### Viewing a Secret
 
@@ -135,8 +144,14 @@ serectsapp/
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── auth/           # Better Auth handlers
 │   │   │   ├── create/         # Create secret endpoint
 │   │   │   ├── getslug/        # Retrieve secret endpoint
+│   │   │   ├── secrets/        # Account-owned secret management
+│   │   ├── create/             # Secret creation workspace
+│   │   ├── login/              # Sign-in page
+│   │   ├── signup/             # Sign-up page
+│   │   ├── dashboard/          # Secret management dashboard
 │   │   ├── s/
 │   │   │   └── [...slug]/
 │   │   │       └── page.tsx    # Secret viewing page
@@ -161,6 +176,7 @@ serectsapp/
 - Unique 8-character slugs generated with nanoid
 - One-time access: secrets are deleted after viewing
 - Automatic expiration using Redis TTL
+- Failed-password-attempt lockout with auto-destruction
 - No sensitive data is logged
 - Input validation and sanitization throughout
 

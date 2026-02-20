@@ -1,129 +1,193 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/primsa";
-import redis from "@/lib/db/redis";
 import * as bcrypt from "bcrypt-ts";
 import crypto from "crypto";
+import prisma from "@/lib/db/primsa";
+import redis from "@/lib/db/redis";
 
-export async function POST(request : NextRequest) {
-    /**
-     * We will get few things from the body
-     * slug
-     * password
-     * 
-     */
-    const body = await request.json();
+interface GetSlugPayload {
+  slug: string;
+  password?: string;
+}
 
-    if (!body.slug || typeof body.slug !== "string") {
-        return NextResponse.json({
-            error: "Invalid slug"
-        }, {
-            status: 400
-        })
+interface SlugReadMeta {
+  viewCount: number;
+  maxViews: number;
+  viewsRemaining: number;
+  exhausted: boolean;
+}
+
+const parsePayload = (value: unknown): GetSlugPayload | null => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const payload = value as Record<string, unknown>;
+  if (typeof payload.slug !== "string") {
+    return null;
+  }
+
+  return {
+    slug: payload.slug,
+    password: typeof payload.password === "string" ? payload.password : undefined,
+  };
+};
+
+const deleteSecretArtifacts = async (slug: string) => {
+  const redisKey = `secret:${slug}`;
+  await redis.del(redisKey);
+  await prisma.slug.delete({ where: { slug } }).catch(() => null);
+};
+
+export async function POST(request: NextRequest) {
+  const payload = parsePayload(await request.json());
+
+  if (!payload) {
+    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+  }
+
+  const slug = payload.slug.trim();
+  if (!slug) {
+    return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
+  }
+
+  const slugRecord = await prisma.slug.findUnique({
+    where: { slug },
+  });
+
+  if (!slugRecord) {
+    return NextResponse.json({ error: "Slug does not exist" }, { status: 404 });
+  }
+
+  if (slugRecord.viewCount >= slugRecord.maxViews) {
+    await deleteSecretArtifacts(slug);
+    return NextResponse.json(
+      { error: "View limit reached. Secret has been destroyed." },
+      { status: 410 }
+    );
+  }
+
+  if (slugRecord.passwordHash) {
+    if (!payload.password) {
+      return NextResponse.json({ error: "Password is required" }, { status: 400 });
     }
 
-    const slugExists = await prisma.slug.findUnique({
-        where : {
-            slug : body.slug
-        }
-    })
+    const isPasswordCorrect = await bcrypt.compare(
+      payload.password,
+      slugRecord.passwordHash
+    );
 
-    if(!slugExists) {
-        return NextResponse.json({
-            error : "Slug does not exist"
-        }, {
-            status : 400
-        })
-    }
-
-    const dbPasswordHash = slugExists.passwordHash; 
-
-    if(dbPasswordHash) {
-        // The password is not encrypted here since we're on the client side
-        // Just directly compare with bcrypt
-        const isPasswordCorrect = await bcrypt.compare(body.password, dbPasswordHash);
-
-        if(!isPasswordCorrect) {
-            return NextResponse.json({
-                error : "Invalid password"
-            }, {
-                status : 400
-            })
-        }
-    }
-
-    const redisKey = `secret:${body.slug}`;
-    let content: string | null = null;
-    if (typeof (redis as unknown as { getdel?: (key: string) => Promise<string | null> }).getdel === "function") {
-        content = await (redis as unknown as { getdel: (key: string) => Promise<string | null> }).getdel(redisKey);
-    } else {
-        content = await redis.get(redisKey) as string | null;
-        if (content) {
-            await redis.del(redisKey);
-        }
-    }
-
-
-    
-    if(!content) {
-
-        await prisma.slug.delete({
-            where : {
-                slug : body.slug
-            }
-        })
-
-        return NextResponse.json({
-            error : "Slug has expired"
-        }, {
-            status : 400
-        })
-    }
-
-    await prisma.slug.update({
-        where : {
-            slug : body.slug
+    if (!isPasswordCorrect) {
+      const attemptsRecord = await prisma.slug.update({
+        where: { slug },
+        data: {
+          failedAttempts: {
+            increment: 1,
+          },
         },
-        data : {
-            viewedAt : true
-        }
-    })
+        select: {
+          failedAttempts: true,
+          maxFailedAttempts: true,
+        },
+      });
 
-    // now we can decode the content
-    const Key = process.env.NEXT_PUBLIC_AES_HEX;
+      const attemptsLeft =
+        attemptsRecord.maxFailedAttempts - attemptsRecord.failedAttempts;
 
-    const iv = slugExists.iv
-    const tag = slugExists.tag;
+      if (attemptsLeft <= 0) {
+        await deleteSecretArtifacts(slug);
+        return NextResponse.json(
+          { error: "Too many failed attempts. Secret has been destroyed." },
+          { status: 423 }
+        );
+      }
 
-    const decrypt = (content : string , iv : string , tag : string) => {
-        if (!Key || Key.length !== 64) {
-            throw new Error('Key must be a 64-character hexadecimal string for AES-256.');
-        }
+      return NextResponse.json(
+        { error: `Invalid password. ${attemptsLeft} attempts remaining.` },
+        { status: 401 }
+      );
+    }
+  }
 
-        const key = Buffer.from(Key, 'hex'); // Convert hex string to Buffer
-        const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'hex'));
-        decipher.setAuthTag(Buffer.from(tag, 'hex'));
+  const reserveView = await prisma.slug.updateMany({
+    where: {
+      slug,
+      viewCount: {
+        lt: slugRecord.maxViews,
+      },
+    },
+    data: {
+      viewCount: {
+        increment: 1,
+      },
+      lastViewedAt: new Date(),
+    },
+  });
 
-        let decrypted = decipher.update(content, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
+  if (reserveView.count === 0) {
+    await deleteSecretArtifacts(slug);
+    return NextResponse.json(
+      { error: "View limit reached. Secret has been destroyed." },
+      { status: 410 }
+    );
+  }
 
-        return decrypted;
+  const redisKey = `secret:${slug}`;
+  const encryptedContent = (await redis.get(redisKey)) as string | null;
+
+  if (!encryptedContent) {
+    await prisma.slug.delete({ where: { slug } }).catch(() => null);
+    return NextResponse.json({ error: "Slug has expired" }, { status: 410 });
+  }
+
+  const keyHex = process.env.NEXT_PUBLIC_AES_HEX;
+  if (!keyHex || keyHex.length !== 64) {
+    return NextResponse.json(
+      { error: "Encryption key is not configured" },
+      { status: 500 }
+    );
+  }
+
+  try {
+    const key = Buffer.from(keyHex, "hex");
+    const decipher = crypto.createDecipheriv(
+      "aes-256-gcm",
+      key,
+      Buffer.from(slugRecord.iv, "hex")
+    );
+    decipher.setAuthTag(Buffer.from(slugRecord.tag, "hex"));
+
+    let decrypted = decipher.update(encryptedContent, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
+    const updated = await prisma.slug.findUnique({
+      where: { slug },
+      select: {
+        viewCount: true,
+        maxViews: true,
+      },
+    });
+
+    if (!updated) {
+      return NextResponse.json({ content: decrypted }, { status: 200 });
     }
 
-    let decryptedContent;
-    try {
-        decryptedContent = decrypt(content, iv, tag);
-    } catch (error) {
-        console.error('Decryption failed:', error);
-        return NextResponse.json({
-            error: "Decryption failed"
-        }, {
-            status: 500
-        });
+    const exhausted = updated.viewCount >= updated.maxViews;
+    const viewsRemaining = Math.max(updated.maxViews - updated.viewCount, 0);
+
+    if (exhausted) {
+      await deleteSecretArtifacts(slug);
     }
 
-    return NextResponse.json({
-        content : decryptedContent
-    }, {
-        status : 200
-    })
+    const meta: SlugReadMeta = {
+      viewCount: updated.viewCount,
+      maxViews: updated.maxViews,
+      viewsRemaining,
+      exhausted,
+    };
+
+    return NextResponse.json({ content: decrypted, meta }, { status: 200 });
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    return NextResponse.json({ error: "Decryption failed" }, { status: 500 });
+  }
 }
