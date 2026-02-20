@@ -198,8 +198,8 @@ export default function LandingPage() {
                 </div>
                 <div className="rounded-xl border border-[var(--color-line)] bg-white/70 p-4">
                   <p className="font-geist-mono text-sm leading-relaxed text-[var(--color-muted)]">
-                    <span className="text-[var(--color-ink)]">DATABASE_URL</span>=postgresql://admin:s3cr3t@prod-db:5432/app<br/>
-                    <span className="text-[var(--color-ink)]">API_KEY</span>=sk_live_4eC39HqLyjWDarjtT1zdp7dc
+                    <span className="text-[var(--color-ink)]">DATABASE_URL</span>="postgresql://user:pass@host:5432/db"<br/>
+                    <span className="text-[var(--color-ink)]">API_KEY</span>="sk_live_***"
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
