@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { Copy, LockKeyhole, ShieldAlert } from "lucide-react";
+import { Copy, LockKeyhole, ShieldAlert, TerminalSquare } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface WithPasswordProps {
@@ -34,7 +34,7 @@ const WithPassword: React.FC<WithPasswordProps> = ({ slug }) => {
     setError("");
 
     if (!password.trim()) {
-      setError("Password is required");
+      setError("PASSWORD IS REQUIRED");
       return;
     }
 
@@ -50,15 +50,15 @@ const WithPassword: React.FC<WithPasswordProps> = ({ slug }) => {
         const errorPayload = (await response
           .json()
           .catch(() => ({}))) as ErrorPayload;
-        throw new Error(errorPayload.error || "Invalid password");
+        throw new Error(errorPayload.error || "INVALID PASSWORD / MAX RETRIES REACHED");
       }
 
       const result = (await response.json()) as SecretPayload;
       setData(result);
       setPassword("");
-      toast.success("Secret decrypted");
+      toast.success("SECRET DECRYPTED");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to unlock secret");
+      setError(err instanceof Error ? err.message : "FAILED TO UNLOCK SECRET");
     } finally {
       setIsLoading(false);
     }
@@ -67,80 +67,102 @@ const WithPassword: React.FC<WithPasswordProps> = ({ slug }) => {
   const copyContent = async () => {
     if (!data?.content) return;
     await navigator.clipboard.writeText(data.content);
-    toast.success("Secret copied");
+    toast.success("SECRET COPIED");
   };
 
   return (
-    <main className="px-6 py-12 sm:px-8">
-      <div className="mx-auto max-w-3xl space-y-5">
-        <header className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
-          <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-            Password protected secret
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">
-            Unlock secure content
+    <main className="relative min-h-[80vh] flex flex-col items-center px-6 py-12 sm:px-8 pt-24 font-mono uppercase text-xs">
+      <div className="w-full max-w-5xl space-y-8">
+        
+        <header className="border-b border-[var(--color-line)] pb-8">
+          <div className="flex items-center gap-2 text-[10px] tracking-widest text-[var(--color-accent)] mb-4">
+            <LockKeyhole className="h-4 w-4" />
+            [ SECURE RETRIEVAL ]
+          </div>
+          <h1 className="font-sans font-black tracking-tighter text-4xl sm:text-6xl text-[var(--color-ink)] leading-tight mb-2">
+            SECURE<br/>
+            <span className="text-[var(--color-muted)]">DELIVERY.</span>
           </h1>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Slug: <span className="font-mono">{slug}</span>
+          <p className="tracking-widest text-[var(--color-muted)]">
+            /// SLUG: <span className="text-[var(--color-ink)] font-bold">{slug}</span>
           </p>
         </header>
 
         {!data ? (
-          <section className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
-                  Password
-                </span>
+          <section className="bg-[var(--color-surface)] border border-[var(--color-line)]">
+            <div className="border-b border-[var(--color-line)] bg-[var(--color-paper)] px-6 py-4">
+              <p className="text-[10px] tracking-widest text-[var(--color-ink)]">
+                /// THIS SECRET REQUIRES A PASSWORD
+              </p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div className="space-y-2">
+                <label className="block text-[10px] tracking-widest text-[var(--color-muted)]">
+                  /// PASSWORD
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Enter password"
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/70 focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
+                  placeholder="ENTER PASSWORD"
+                  className="w-full border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] transition-colors uppercase tracking-widest"
                 />
-              </label>
+              </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-70"
+                className="group flex w-full items-center justify-center gap-3 border border-[var(--color-accent)] bg-[var(--color-accent)] px-6 py-4 font-sans text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <LockKeyhole className="h-4 w-4" />
-                {isLoading ? "Verifying..." : "Decrypt secret"}
+                <LockKeyhole className="h-4 w-4 transition-transform group-hover:scale-110" />
+                {isLoading ? "VERIFYING KEY..." : "DECRYPT SECRET"}
               </button>
             </form>
 
             {error && (
-              <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-700/35 bg-amber-100/50 p-3 text-sm text-amber-900">
-                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>{error}</span>
+              <div className="border-t border-[var(--color-line)] bg-amber-500/10 p-6 text-amber-500">
+                <div className="flex items-start gap-3">
+                  <ShieldAlert className="h-5 w-5 shrink-0" />
+                  <p className="tracking-widest leading-relaxed">
+                    /// ACCESS DENIED: {error}
+                  </p>
+                </div>
               </div>
             )}
           </section>
         ) : (
-          <section className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5">
-            <p className="mb-3 text-sm text-[var(--color-muted)]">
-              Secret decrypted. {data.meta?.viewsRemaining ?? 0} view(s) remaining.
-            </p>
-            <pre className="max-h-[420px] overflow-auto rounded-xl border border-[var(--color-line)] bg-white p-4 text-sm leading-relaxed text-[var(--color-ink)]">
-              {data.content}
-            </pre>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={copyContent}
-                className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] px-3.5 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
-              >
-                <Copy className="h-4 w-4" />
-                Copy content
-              </button>
-              <Link
-                href="/"
-                className="rounded-lg bg-[var(--color-accent)] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)]"
-              >
-                Create another secret
-              </Link>
+          <section className="bg-[var(--color-surface)] border border-[var(--color-line)] p-[1px]">
+            <div className="bg-[var(--color-surface)]">
+              <div className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-ink)] px-6 py-3 text-[10px] tracking-widest text-[var(--color-surface)]">
+                <span>/// DECRYPTED_SECRET_CONTENT</span>
+                <span className="text-[var(--color-accent)]">
+                  {data.meta?.viewsRemaining ?? 0} VIEW(S) REMAINING
+                </span>
+              </div>
+              
+              <div className="p-6">
+                <pre className="w-full max-h-[500px] overflow-auto bg-[var(--color-paper)] p-6 text-sm text-[var(--color-ink)] scrollbar-hide border border-[var(--color-line)]">
+                  {data.content}
+                </pre>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch border-t border-[var(--color-line)] bg-[var(--color-paper)]">
+                <button
+                  type="button"
+                  onClick={copyContent}
+                  className="group flex-1 flex items-center justify-center gap-2 px-6 py-4 font-sans text-xs font-black uppercase tracking-widest text-[var(--color-ink)] transition-colors hover:bg-[var(--color-ink)] hover:text-white border-b sm:border-b-0 sm:border-r border-[var(--color-line)]"
+                >
+                  <Copy className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  COPY TO CLIPBOARD
+                </button>
+                <Link
+                  href="/create"
+                  className="flex-1 flex items-center justify-center bg-[var(--color-accent)] px-6 py-4 font-sans text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-[var(--color-accent-strong)]"
+                >
+                  CREATE ANOTHER
+                </Link>
+              </div>
             </div>
           </section>
         )}

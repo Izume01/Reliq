@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { nanoid } from "nanoid";
 import * as bcrypt from "bcrypt-ts";
 import crypto from "crypto";
@@ -114,7 +115,7 @@ const generateUniqueSlug = async (): Promise<string> => {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: request.headers,
+      headers: await headers(),
     });
 
     if (!session?.user?.id) {

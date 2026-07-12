@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth/client";
 import { PASSWORD_MIN_LENGTH } from "@/lib/security/options";
@@ -24,13 +24,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const isAuthed = Boolean(sessionData?.user);
   const isSignup = mode === "signup";
-  const title = isSignup ? "Create your account" : "Sign in to Reliq";
+  const title = isSignup ? "CREATE YOUR ACCOUNT" : "SIGN IN TO RELIQ";
   const subtitle = isSignup
-    ? "Start managing one-time secret links from your dashboard."
-    : "Access your secret inventory, revoke links, and create new shares.";
-  const buttonLabel = isSignup ? "Create account" : "Sign in";
+    ? "START MANAGING ONE-TIME SECRET LINKS FROM YOUR DASHBOARD."
+    : "ACCESS YOUR SECRET INVENTORY, REVOKE LINKS, AND CREATE NEW SHARES.";
+  const buttonLabel = isSignup ? "INITIALIZE ACCOUNT" : "AUTHENTICATE";
   const alternateHref = isSignup ? "/login" : "/signup";
-  const alternateLabel = isSignup ? "Already have an account?" : "Need an account?";
+  const alternateLabel = isSignup ? "ALREADY HAVE AN ACCOUNT?" : "NEED AN ACCOUNT?";
 
   useEffect(() => {
     if (isAuthed) {
@@ -42,17 +42,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
     event.preventDefault();
 
     if (!email.trim() || !password.trim()) {
-      toast.error("Email and password are required");
+      toast.error("EMAIL AND PASSWORD ARE REQUIRED");
       return;
     }
 
     if (isSignup && !name.trim()) {
-      toast.error("Name is required");
+      toast.error("NAME IS REQUIRED");
       return;
     }
 
     if (isSignup && password.length < PASSWORD_MIN_LENGTH) {
-      toast.error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+      toast.error(`PASSWORD MUST BE AT LEAST ${PASSWORD_MIN_LENGTH} CHARACTERS`);
       return;
     }
 
@@ -66,11 +66,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (result.error) {
-          toast.error(result.error.message || "Sign up failed");
+          toast.error(result.error.message || "SIGN UP FAILED");
           return;
         }
 
-        toast.success("Account created");
+        toast.success("ACCOUNT CREATED");
       } else {
         const result = await authClient.signIn.email({
           email: email.trim(),
@@ -78,17 +78,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (result.error) {
-          toast.error(result.error.message || "Sign in failed");
+          toast.error(result.error.message || "SIGN IN FAILED");
           return;
         }
 
-        toast.success("Signed in");
+        toast.success("SIGNED IN");
       }
 
       router.replace("/dashboard");
       router.refresh();
     } catch {
-      toast.error("Authentication failed");
+      toast.error("AUTHENTICATION FAILED");
     } finally {
       setSubmitting(false);
     }
@@ -96,82 +96,91 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   if (isPending || isAuthed) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-[var(--color-line)] bg-white/70 px-3.5 py-3 text-sm text-[var(--color-muted)]">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        {isPending ? "Checking session..." : "Redirecting to dashboard..."}
+      <div className="flex items-center gap-4 rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-6 py-4 text-xs font-mono uppercase tracking-widest text-[var(--color-muted)]">
+        <Loader2 className="h-4 w-4 animate-spin text-[var(--color-accent)]" />
+        {isPending ? "CHECKING SESSION..." : "REDIRECTING TO DASHBOARD..."}
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">{title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">{subtitle}</p>
-      </header>
+    <form onSubmit={handleSubmit} className="space-y-8 flex flex-col h-full justify-between">
+      <div>
+        <header className="mb-10">
+          <h2 className="text-2xl font-sans font-black tracking-tighter text-[var(--color-ink)] mb-2">{title}</h2>
+          <p className="text-[10px] font-mono tracking-widest text-[var(--color-muted)]">{subtitle}</p>
+        </header>
 
-      {isSignup && (
-        <label className="block space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
-            Name
+        <div className="space-y-6">
+          {isSignup && (
+            <label className="block space-y-2">
+              <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[var(--color-ink)]">
+                /// NAME
+              </span>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="OPERATOR ALIAS"
+                className="w-full rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-4 font-mono text-xs uppercase tracking-widest text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+              />
+            </label>
+          )}
+
+          <label className="block space-y-2">
+            <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[var(--color-ink)]">
+              /// EMAIL
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="SECURE@NODE.COM"
+              className="w-full rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-4 font-mono text-xs uppercase tracking-widest text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+            />
+          </label>
+
+          <label className="block space-y-2">
+            <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[var(--color-ink)]">
+              /// PASSWORD
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={isSignup ? "CREATE ENCRYPTION KEY" : "ENTER ENCRYPTION KEY"}
+              className="w-full rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-4 font-mono text-xs tracking-widest text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+            />
+          </label>
+
+          {isSignup && (
+            <p className="bg-[var(--color-paper)] border border-[var(--color-line)] px-4 py-3 font-mono text-[10px] tracking-widest text-[var(--color-muted)] uppercase">
+              MINIMUM ENTROPY REQUIRED: {PASSWORD_MIN_LENGTH} CHARS.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-8 space-y-6 border-t border-[var(--color-line)] pt-8">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="group flex w-full items-center justify-between border border-[var(--color-accent)] bg-[var(--color-accent)] p-5 font-sans text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="flex items-center gap-3">
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {submitting ? "PROCESSING..." : buttonLabel}
           </span>
-          <input
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Jane Doe"
-            className="w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/75 focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
-          />
-        </label>
-      )}
+          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+        </button>
 
-      <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
-          Email
-        </span>
-        <input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="name@company.com"
-          className="w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/75 focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
-        />
-      </label>
-
-      <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
-          Password
-        </span>
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder={isSignup ? "Create a strong password" : "Enter your password"}
-          className="w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/75 focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
-        />
-      </label>
-
-      {isSignup && (
-        <p className="rounded-lg bg-[var(--color-paper)] px-3 py-2 text-xs text-[var(--color-muted)]">
-          Minimum password length: {PASSWORD_MIN_LENGTH} characters.
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-65"
-      >
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {submitting ? "Processing..." : buttonLabel}
-      </button>
-
-      <p className="text-sm text-[var(--color-muted)]">
-        {alternateLabel}{" "}
-        <Link href={alternateHref} className="text-[var(--color-accent-strong)] underline">
-          {isSignup ? "Sign in" : "Create one"}
-        </Link>
-      </p>
+        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[var(--color-muted)]">
+          <span>{alternateLabel}</span>
+          <Link href={alternateHref} className="text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors border-b border-[var(--color-line)] hover:border-[var(--color-accent)] pb-1">
+            {isSignup ? "SIGN IN" : "CREATE ONE"}
+          </Link>
+        </div>
+      </div>
     </form>
   );
 }

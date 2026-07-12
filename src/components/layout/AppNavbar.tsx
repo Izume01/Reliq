@@ -1,114 +1,127 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LogOut, MessageSquareLock, Plus, ShieldCheck } from "lucide-react";
-import toast from "react-hot-toast";
+import { usePathname } from "next/navigation";
+import { TerminalSquare, LogOut, Menu, X } from "lucide-react";
+import React, { useState } from "react";
 import { authClient } from "@/lib/auth/client";
+import { useRouter } from "next/navigation";
 
-const linkBaseClass =
-  "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors";
+const linkBaseClass = "px-4 py-2 text-xs font-mono font-bold uppercase tracking-[0.1em] transition-colors";
 
 const getLinkClassName = (active: boolean) =>
   active
-    ? `${linkBaseClass} bg-[var(--color-paper)] text-[var(--color-ink)]`
-    : `${linkBaseClass} text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]`;
+    ? `${linkBaseClass} bg-[var(--color-ink)] text-[var(--color-surface)]`
+    : `${linkBaseClass} text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)]`;
+
+const mobileLinkBaseClass = "w-full text-left px-4 py-4 text-xs font-mono font-bold uppercase tracking-[0.1em] transition-colors border-b border-[var(--color-line)]";
+
+const getMobileLinkClassName = (active: boolean) =>
+  active
+    ? `${mobileLinkBaseClass} bg-[var(--color-ink)] text-[var(--color-surface)]`
+    : `${mobileLinkBaseClass} text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper)]`;
 
 export default function AppNavbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: sessionData, isPending } = authClient.useSession();
+  const { data: sessionData } = authClient.useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  if (pathname === "/login" || pathname === "/signup") return null;
 
-  const isAuthed = Boolean(sessionData?.user);
-  const onHome = pathname === "/";
-  const onCreate = pathname.startsWith("/create");
-  const onDashboard = pathname.startsWith("/dashboard");
-
-  const signOut = async () => {
-    const result = await authClient.signOut();
-    if (result.error) {
-      toast.error(result.error.message || "Unable to sign out");
-      return;
-    }
-
-    if (onCreate || onDashboard) {
-      router.push("/login");
-    } else {
-      router.refresh();
-    }
-    toast.success("Signed out");
+  const handleLogout = async () => {
+    await authClient.signOut();
+    setMobileMenuOpen(false);
+    router.push("/login");
   };
-
+  
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-line)]/60 bg-[var(--color-surface)]/88 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3 sm:px-6">
-        <Link href="/" className="inline-flex items-center gap-2.5">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-accent)] text-white shadow-[0_8px_20px_rgba(141,63,15,0.25)]">
-            <MessageSquareLock className="h-4 w-4" />
-          </span>
-          <span className="text-lg font-semibold tracking-tight text-[var(--color-ink)]">
-            Reliq
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-1 md:flex">
-          <Link href="/" className={getLinkClassName(onHome)}>
-            Home
-          </Link>
-          <Link href="/create" className={getLinkClassName(onCreate)}>
-            Create
-          </Link>
-          <Link href="/dashboard" className={getLinkClassName(onDashboard)}>
-            Dashboard
-          </Link>
-          <Link
-            href="/#faq"
-            className={`${linkBaseClass} text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]`}
-          >
-            FAQ
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-2">
-          {isPending ? (
-            <div className="h-9 w-24 animate-pulse rounded-lg bg-[var(--color-line)]/40" />
-          ) : isAuthed ? (
-            <>
-              <Link
-                href="/create"
-                className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)]"
-              >
-                <Plus className="h-4 w-4" />
-                New secret
+    <div className="fixed top-0 left-0 z-50 w-full border-b border-[var(--color-line)] bg-[var(--color-surface)] flex justify-center px-4 py-4 sm:px-5">
+      <nav className="flex flex-col w-full max-w-5xl bg-[var(--color-surface)] gap-4">
+        <div className="flex items-stretch justify-between w-full gap-4">
+          <div className="flex items-stretch gap-6 bg-[var(--color-surface)]">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 bg-[var(--color-ink)] px-4 py-2 text-[var(--color-surface)] transition-colors hover:bg-[var(--color-accent)] hover:text-white">
+              <TerminalSquare className="h-5 w-5" />
+              <span className="font-sans font-black tracking-widest uppercase hidden sm:block text-sm mt-[2px]">Reliq</span>
+            </Link>
+            
+            <div className="hidden md:flex items-center gap-1">
+              <Link href="/create" className={getLinkClassName(pathname === "/create")}>
+                Create
               </Link>
+              <Link href="/dashboard" className={getLinkClassName(pathname === "/dashboard")}>
+                Dashboard
+              </Link>
+              <Link href="/#faq" className={getLinkClassName(pathname === "/#faq")}>
+                FAQ
+              </Link>
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-stretch bg-[var(--color-surface)] gap-1 p-1">
+            {!sessionData?.user ? (
+              <>
+                <Link href="/login" className="flex items-center px-4 text-xs font-mono font-bold uppercase tracking-[0.1em] text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper)]">
+                  Log in
+                </Link>
+                <Link href="/signup" className="flex items-center bg-[var(--color-accent)] px-5 text-xs font-mono font-bold uppercase tracking-[0.1em] text-white hover:bg-[var(--color-accent-strong)]">
+                  Initialize
+                </Link>
+              </>
+            ) : (
               <button
-                type="button"
-                onClick={signOut}
-                className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-3 py-1.5 text-sm text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-mono font-bold uppercase tracking-[0.1em] text-[var(--color-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-paper)] border border-transparent hover:border-[var(--color-line)] transition-colors"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                Sign out
+                Log Out
               </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)]"
-              >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Sign up
-              </Link>
-            </>
-          )}
+            )}
+          </div>
+
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden flex items-center justify-center px-4 border border-[var(--color-line)] bg-[var(--color-surface)] hover:bg-[var(--color-paper)] transition-colors text-[var(--color-ink)]"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
-      </div>
-    </header>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden flex flex-col border-t border-[var(--color-line)] pt-2 bg-[var(--color-surface)]">
+            <Link href="/create" onClick={() => setMobileMenuOpen(false)} className={getMobileLinkClassName(pathname === "/create")}>
+              Create
+            </Link>
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={getMobileLinkClassName(pathname === "/dashboard")}>
+              Dashboard
+            </Link>
+            <Link href="/#faq" onClick={() => setMobileMenuOpen(false)} className={getMobileLinkClassName(pathname === "/#faq")}>
+              FAQ
+            </Link>
+            
+            <div className="mt-4 pt-4 border-t border-[var(--color-line)] flex flex-col gap-2">
+              {!sessionData?.user ? (
+                <>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center px-4 py-4 text-xs font-mono font-bold uppercase tracking-[0.1em] text-[var(--color-ink)] border border-[var(--color-line)] hover:bg-[var(--color-paper)]">
+                    Log in
+                  </Link>
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="w-full text-center px-4 py-4 text-xs font-mono font-bold uppercase tracking-[0.1em] bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-strong)]">
+                    Initialize
+                  </Link>
+                </>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 w-full text-center px-4 py-4 text-xs font-mono font-bold uppercase tracking-[0.1em] text-[var(--color-accent)] border border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log Out
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
+    </div>
   );
 }

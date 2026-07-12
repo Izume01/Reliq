@@ -11,6 +11,8 @@ import {
   RefreshCw,
   ShieldCheck,
   Trash2,
+  ArrowRight,
+  Terminal,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth/client";
@@ -36,7 +38,7 @@ interface ErrorPayload {
 }
 
 const formatTtl = (seconds: number): string => {
-  if (seconds <= 0) return "Expired";
+  if (seconds <= 0) return "EXPIRED";
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
@@ -46,9 +48,9 @@ const formatTtl = (seconds: number): string => {
 const formatDate = (iso: string): string => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
-    return "Unknown";
+    return "UNKNOWN";
   }
-  return date.toLocaleString();
+  return date.toLocaleString().toUpperCase();
 };
 
 const lockoutPressure = (failed: number, max: number): number => {
@@ -78,7 +80,7 @@ export default function DashboardPage() {
           setSecrets([]);
           return;
         }
-        toast.error(payload.error || "Failed to load secrets");
+        toast.error(payload.error || "FAILED TO FETCH SECRETS");
         return;
       }
 
@@ -145,232 +147,277 @@ export default function DashboardPage() {
         const errorPayload = (await response
           .json()
           .catch(() => ({}))) as ErrorPayload;
-        toast.error(errorPayload.error || "Failed to revoke secret");
+        toast.error(errorPayload.error || "FAILED TO REVOKE");
         return;
       }
 
-      toast.success("Secret revoked");
+      toast.success("SECRET REVOKED");
       setSecrets((current) => current.filter((item) => item.slug !== slug));
     } catch {
-      toast.error("Failed to revoke secret");
+      toast.error("REVOCATION FAILED");
     }
   };
 
   const copyLink = async (slug: string) => {
     const url = `${window.location.origin}/s/${slug}`;
     await navigator.clipboard.writeText(url);
-    toast.success("Link copied");
+    toast.success("LINK COPIED TO CLIPBOARD");
   };
 
   if (sessionPending) {
     return (
-      <main className="px-6 py-14 sm:px-8">
-        <p className="text-center text-sm text-[var(--color-muted)]">Loading session...</p>
+      <main className="px-6 py-14 sm:px-8 pt-32 sm:pt-40 font-mono text-xs uppercase tracking-widest text-[var(--color-muted)] text-center">
+        /// LOADING...
       </main>
     );
   }
 
   if (!isAuthed) {
     return (
-      <main className="px-6 py-14 sm:px-8">
-        <div className="mx-auto max-w-xl rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-8 text-center">
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Dashboard locked</h1>
-          <p className="mt-2 text-sm text-[var(--color-muted)]">
-            Sign in to view and manage account-owned secrets.
-          </p>
-          <div className="mt-5 flex justify-center gap-3">
-            <Link
-              href="/login"
-              className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)]"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg border border-[var(--color-line)] px-4 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
-            >
-              Create account
-            </Link>
+      <div className="relative min-h-screen selection:bg-[var(--color-accent)] selection:text-white font-mono uppercase">
+        <main className="relative mx-auto max-w-5xl px-5 pb-14 pt-32 sm:px-6 sm:pt-40">
+          <header className="mb-12 border-b border-[var(--color-line)] pb-8">
+            <div className="flex items-center justify-between mb-8">
+              <span className="text-xs text-[var(--color-muted)] tracking-widest">[ DASHBOARD ]</span>
+            </div>
+            <h1 className="font-sans font-black tracking-tighter text-5xl leading-tight text-[var(--color-ink)] sm:text-7xl uppercase">
+              YOUR<br/>
+              <span className="text-[var(--color-muted)]">SECRETS.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl font-mono text-xs uppercase tracking-widest leading-relaxed text-[var(--color-muted)]">
+              VIEW AND MANAGE YOUR ACTIVE SECRETS AND RETRIEVAL METRICS.
+            </p>
+          </header>
+
+          <div className="border border-[var(--color-accent)] bg-[var(--color-accent)]/5 p-[1px] w-full mx-auto max-w-3xl">
+            <div className="bg-[var(--color-surface)] p-8 sm:p-12 border border-[var(--color-accent)]/20">
+              <div className="mb-8 flex h-16 w-16 items-center justify-center bg-[var(--color-accent)] text-white">
+                <LockKeyhole className="h-8 w-8" />
+              </div>
+              <h2 className="font-sans font-black tracking-tight text-3xl uppercase text-[var(--color-ink)] mb-4">DASHBOARD LOCKED</h2>
+              <p className="font-mono text-xs uppercase tracking-widest text-[var(--color-muted)] mb-10 max-w-xl">
+                SIGN IN TO VIEW AND MANAGE YOUR SECRETS.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/login"
+                  className="group flex items-center justify-center gap-3 border border-[var(--color-accent)] bg-[var(--color-accent)] px-8 py-4 font-sans text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-[var(--color-accent-strong)]"
+                >
+                  AUTHENTICATE
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center justify-center border border-[var(--color-line)] bg-[var(--color-surface)] px-8 py-4 font-sans text-sm font-black uppercase tracking-widest text-[var(--color-ink)] hover:border-[var(--color-accent)] transition-colors"
+                >
+                  CREATE ACCOUNT
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_8%,rgba(180,91,33,0.08),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(180,91,33,0.05),transparent_35%)]" />
-
-      <main className="relative mx-auto max-w-6xl px-6 py-8 sm:py-10">
-        <div className="space-y-6">
-          <header className="relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 shadow-[0_20px_60px_rgba(120,70,30,0.10)]">
-            <div className="pointer-events-none absolute -mt-14 h-40 w-40 rounded-full bg-[var(--color-accent)]/10 blur-2xl" />
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-                  <BadgeCheck className="h-3.5 w-3.5 text-[var(--color-accent)]" />
-                  Dashboard
-                </p>
-                <h1 className="mt-1 font-dancing-script text-4xl leading-tight text-[var(--color-ink)] sm:text-5xl">
-                  Secret Operations
-                </h1>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">{sessionData?.user?.email}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={loadSecrets}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
-                >
-                  <RefreshCw className={`h-4 w-4 ${loadingSecrets ? "animate-spin" : ""}`} />
-                  Refresh
-                </button>
-                <Link
-                  href="/create"
-                  className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-accent-strong)]"
-                >
-                  Create secret
-                </Link>
-              </div>
+    <div className="relative min-h-screen selection:bg-[var(--color-accent)] selection:text-white font-mono uppercase">
+      <main className="relative mx-auto max-w-5xl px-5 pb-14 pt-32 sm:px-6 sm:pt-40">
+        
+        {/* HEADER */}
+        <header className="mb-8 border-b border-[var(--color-line)] pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-6 text-[10px] tracking-widest text-[var(--color-muted)]">
+              <BadgeCheck className="h-4 w-4" />
+              [ DASHBOARD ]
             </div>
-          </header>
+            <h1 className="font-sans font-black tracking-tighter text-4xl leading-tight text-[var(--color-ink)] sm:text-6xl uppercase">
+              YOUR<br/>
+              <span className="text-[var(--color-muted)]">SECRETS.</span>
+            </h1>
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-[var(--color-muted)]">
+              /// ACCOUNT: <span className="text-[var(--color-ink)]">{sessionData?.user?.email}</span>
+            </p>
+          </div>
 
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <article className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">Active</p>
-              <p className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">{activeSecrets.length}</p>
-              <p className="mt-1 text-xs text-[var(--color-muted)]">Currently retrievable links</p>
-            </article>
-            <article className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">Password Protected</p>
-              <p className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">{protectedCount}</p>
-              <p className="mt-1 text-xs text-[var(--color-muted)]">Secrets with extra gate</p>
-            </article>
-            <article className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">Lockout Pressure</p>
-              <p className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">{pressureCount}</p>
-              <p className="mt-1 text-xs text-[var(--color-muted)]">Active links with failed attempts</p>
-            </article>
-            <article className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">Total Views</p>
-              <p className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">{totalViews}</p>
-              <p className="mt-1 text-xs text-[var(--color-muted)]">Successful retrieval events</p>
-            </article>
-          </section>
+          <div className="flex items-stretch gap-3">
+            <button
+              type="button"
+              onClick={loadSecrets}
+              className="flex items-center justify-center gap-2 border border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3 font-sans text-xs font-black uppercase tracking-widest text-[var(--color-ink)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              <RefreshCw className={`h-4 w-4 ${loadingSecrets ? "animate-spin" : ""}`} />
+              REFRESH
+            </button>
+            <Link
+              href="/create"
+              className="group flex items-center justify-center gap-2 border border-[var(--color-accent)] bg-[var(--color-accent)] px-6 py-3 font-sans text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-[var(--color-accent-strong)]"
+            >
+              <Terminal className="h-4 w-4" />
+              NEW SECRET
+            </Link>
+          </div>
+        </header>
 
-          <section className="grid gap-3 sm:grid-cols-2">
-            <article className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted)]">
-              Near view limit: <span className="font-semibold text-[var(--color-ink)]">{nearViewLimitCount}</span>
-            </article>
-            <article className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted)]">
-              Expired or consumed: <span className="font-semibold text-[var(--color-ink)]">{expiredCount}</span>
-            </article>
-          </section>
+        {/* METRICS GRID */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-[var(--color-line)] border border-[var(--color-line)] mb-8">
+          <article className="bg-[var(--color-surface)] p-6">
+            <p className="text-[10px] tracking-[0.2em] text-[var(--color-muted)] mb-4">/// ACTIVE SECRETS</p>
+            <p className="font-sans text-5xl font-black text-[var(--color-ink)]">{activeSecrets.length}</p>
+          </article>
+          <article className="bg-[var(--color-surface)] p-6">
+            <p className="text-[10px] tracking-[0.2em] text-[var(--color-muted)] mb-4">/// PROTECTED SECRETS</p>
+            <p className="font-sans text-5xl font-black text-[var(--color-ink)]">{protectedCount}</p>
+          </article>
+          <article className="bg-[var(--color-surface)] p-6">
+            <p className="text-[10px] tracking-[0.2em] text-[var(--color-muted)] mb-4">/// FAILED ATTEMPTS</p>
+            <p className="font-sans text-5xl font-black text-[var(--color-accent)]">{pressureCount}</p>
+          </article>
+          <article className="bg-[var(--color-surface)] p-6">
+            <p className="text-[10px] tracking-[0.2em] text-[var(--color-muted)] mb-4">/// TOTAL VIEWS</p>
+            <p className="font-sans text-5xl font-black text-[var(--color-ink)]">{totalViews}</p>
+          </article>
+        </section>
 
-          <section className="overflow-hidden rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[0_20px_60px_rgba(120,70,30,0.08)]">
-            <div className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)]/55 px-4 py-3">
-              <p className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-                <Activity className="h-3.5 w-3.5 text-[var(--color-accent)]" />
-                Active secret links
-              </p>
-              {loadingSecrets && <p className="text-xs text-[var(--color-muted)]">Refreshing...</p>}
-            </div>
-
-            <div className="grid grid-cols-12 gap-2 border-b border-[var(--color-line)]/80 bg-white/40 px-4 py-3 text-xs uppercase tracking-[0.08em] text-[var(--color-muted)] sm:grid-cols-[repeat(13,minmax(0,1fr))]">
-              <span className="col-span-12 sm:col-span-3">Slug</span>
-              <span className="col-span-6 sm:col-span-1">TTL</span>
-              <span className="col-span-6 sm:col-span-2">Security</span>
-              <span className="col-span-6 sm:col-span-2">Views</span>
-              <span className="col-span-6 sm:col-span-2">Failed attempts</span>
-              <span className="col-span-6 sm:col-span-1">Last view</span>
-              <span className="col-span-12 sm:col-span-2 text-left sm:text-right">Actions</span>
-            </div>
-
-            {loadingSecrets ? (
-              <div className="px-4 py-8 text-sm text-[var(--color-muted)]">Loading secrets...</div>
-            ) : sortedActiveSecrets.length === 0 ? (
-              <div className="px-4 py-8 text-sm text-[var(--color-muted)]">
-                No active secrets. Create one to start tracking.
-              </div>
-            ) : (
-              sortedActiveSecrets.map((secret) => {
-                const pressure = lockoutPressure(secret.failedAttempts, secret.maxFailedAttempts);
-
-                return (
-                  <div key={secret.slug} className="grid grid-cols-12 gap-2 border-b border-[var(--color-line)]/60 px-4 py-3 text-sm last:border-b-0 hover:bg-white/40 sm:grid-cols-[repeat(13,minmax(0,1fr))]">
-                    <span className="col-span-12 truncate rounded-md bg-white/75 px-2 py-1 font-mono text-[var(--color-ink)] sm:col-span-3">
-                      {secret.slug}
-                    </span>
-                    <span className="col-span-6 inline-flex items-center gap-1 text-[var(--color-muted)] sm:col-span-1">
-                      <Clock4 className="h-3.5 w-3.5" />
-                      {formatTtl(secret.ttlSeconds)}
-                    </span>
-                    <span className="col-span-6 sm:col-span-2">
-                      {secret.passwordRequired ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-paper)] px-2 py-0.5 text-xs text-[var(--color-ink)]">
-                          <LockKeyhole className="h-3 w-3 text-[var(--color-accent)]" />
-                          Password
-                        </span>
-                      ) : (
-                        <span className="inline-flex rounded-full border border-[var(--color-line)] px-2 py-0.5 text-xs text-[var(--color-muted)]">
-                          Open
-                        </span>
-                      )}
-                    </span>
-                    <span className="col-span-6 sm:col-span-2">
-                      <span className="inline-flex rounded-full border border-[var(--color-line)] bg-white/70 px-2 py-0.5 text-xs text-[var(--color-ink)]">
-                        {secret.viewCount}/{secret.maxViews}
-                      </span>
-                    </span>
-                    <span className="col-span-6 space-y-1 sm:col-span-2">
-                      <span className="block text-xs text-[var(--color-muted)]">
-                        {secret.failedAttempts}/{secret.maxFailedAttempts}
-                      </span>
-                      <span className="block h-1.5 overflow-hidden rounded-full bg-[var(--color-paper)]">
-                        <span
-                          className={`block h-full rounded-full ${
-                            pressure >= 70
-                              ? "bg-amber-700/80"
-                              : pressure > 0
-                                ? "bg-amber-500/75"
-                                : "bg-emerald-600/60"
-                          }`}
-                          style={{ width: `${pressure}%` }}
-                        />
-                      </span>
-                    </span>
-                    <span className="col-span-6 text-[var(--color-muted)] sm:col-span-1">
-                      {secret.lastViewedAt ? formatDate(secret.lastViewedAt) : "Never"}
-                    </span>
-                    <span className="col-span-12 flex gap-2 sm:col-span-2 sm:justify-end">
-                      <button
-                        type="button"
-                        onClick={() => copyLink(secret.slug)}
-                        className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-[var(--color-line)] bg-white px-2.5 py-1 text-xs text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
-                      >
-                        <Copy className="h-3 w-3" />
-                        Copy
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleRevoke(secret.slug)}
-                        className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-amber-700/45 px-2.5 py-1 text-xs text-amber-800 hover:bg-amber-100/60"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Revoke
-                      </button>
-                    </span>
-                  </div>
-                );
-              })
+        {/* ALERTS */}
+        {(nearViewLimitCount > 0 || expiredCount > 0) && (
+          <section className="grid sm:grid-cols-2 gap-[1px] bg-[var(--color-line)] border border-[var(--color-line)] mb-8">
+            {nearViewLimitCount > 0 && (
+              <article className="bg-[var(--color-surface)] px-6 py-4 flex items-center gap-4 text-xs tracking-widest text-amber-500">
+                <span className="flex-1">/// WARNING: {nearViewLimitCount} SECRETS NEAR VIEW LIMIT</span>
+              </article>
+            )}
+            {expiredCount > 0 && (
+              <article className="bg-[var(--color-surface)] px-6 py-4 flex items-center gap-4 text-xs tracking-widest text-[var(--color-muted)]">
+                <span className="flex-1">/// {expiredCount} INACTIVE OR EXPIRED SECRETS</span>
+              </article>
             )}
           </section>
+        )}
 
-          <p className="inline-flex items-center gap-1 text-xs text-[var(--color-muted)]">
-            <ShieldCheck className="h-3.5 w-3.5 text-[var(--color-accent)]" />
-            Account-owned links can be revoked instantly from this dashboard.
-          </p>
-        </div>
+        {/* SECRETS TABLE */}
+        <section className="border border-[var(--color-line)] bg-[var(--color-line)] p-[1px]">
+          <div className="bg-[var(--color-surface)]">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4 bg-[var(--color-paper)]">
+              <p className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] text-[var(--color-ink)]">
+                <Activity className="h-4 w-4 text-[var(--color-muted)]" />
+                ACTIVE_SECRETS
+              </p>
+              {loadingSecrets && <p className="text-[10px] tracking-widest text-[var(--color-accent)] animate-pulse">SYNCING...</p>}
+            </div>
+
+            <div className="hidden lg:grid grid-cols-12 gap-4 border-b border-[var(--color-line)] px-6 py-3 text-[10px] tracking-[0.2em] text-[var(--color-muted)] bg-[var(--color-surface)]">
+              <span className="col-span-3">SLUG IDENTIFIER</span>
+              <span className="col-span-1 text-center">TTL</span>
+              <span className="col-span-1 text-center">SECURITY</span>
+              <span className="col-span-1 text-center">VIEWS</span>
+              <span className="col-span-2 text-center">FAILURES</span>
+              <span className="col-span-2 text-right">LAST RETRIEVAL</span>
+              <span className="col-span-2 text-right">ACTION</span>
+            </div>
+
+            <div className="flex flex-col">
+              {loadingSecrets && secrets.length === 0 ? (
+                <div className="px-6 py-12 text-[10px] tracking-widest text-[var(--color-muted)] text-center">
+                  /// LOADING...
+                </div>
+              ) : sortedActiveSecrets.length === 0 ? (
+                <div className="px-6 py-12 text-center">
+                  <p className="text-[10px] tracking-widest text-[var(--color-muted)] mb-4">/// NO ACTIVE SECRETS DETECTED</p>
+                  <Link href="/create" className="inline-block border border-[var(--color-accent)] text-[var(--color-accent)] px-4 py-2 text-[10px] tracking-widest hover:bg-[var(--color-accent)] hover:text-white transition-colors">
+                    CREATE NEW SECRET
+                  </Link>
+                </div>
+              ) : (
+                sortedActiveSecrets.map((secret) => {
+                  const pressure = lockoutPressure(secret.failedAttempts, secret.maxFailedAttempts);
+
+                  return (
+                    <div key={secret.slug} className="group flex flex-col lg:grid lg:grid-cols-12 gap-4 border-b border-[var(--color-line)] px-6 py-5 lg:py-4 lg:items-center last:border-b-0 hover:bg-[var(--color-paper)] transition-colors">
+                      <div className="col-span-3 flex flex-col gap-1 lg:block">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// SLUG IDENTIFIER</span>
+                        <span className="font-mono text-sm font-bold text-[var(--color-ink)] truncate">{secret.slug}</span>
+                      </div>
+                      
+                      <div className="col-span-1 flex flex-col gap-1 lg:items-center lg:block">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// TTL</span>
+                        <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+                          <Clock4 className="h-3.5 w-3.5" />
+                          {formatTtl(secret.ttlSeconds)}
+                        </span>
+                      </div>
+                      
+                      <div className="col-span-1 flex flex-col gap-1 lg:items-center lg:block">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// SECURITY</span>
+                        {secret.passwordRequired ? (
+                          <span className="inline-flex items-center gap-1.5 border border-[var(--color-accent)] bg-[var(--color-accent)]/10 px-2 py-1 text-[10px] tracking-widest text-[var(--color-accent)]">
+                            <LockKeyhole className="h-3 w-3" />
+                            GATED
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center border border-[var(--color-line)] px-2 py-1 text-[10px] tracking-widest text-[var(--color-muted)]">
+                            OPEN
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="col-span-1 flex flex-col gap-1 lg:items-center lg:block">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// VIEWS</span>
+                        <span className="text-xs text-[var(--color-ink)]">
+                          {secret.viewCount} / {secret.maxViews}
+                        </span>
+                      </div>
+                      
+                      <div className="col-span-2 flex flex-col gap-2 lg:block">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// FAILURES</span>
+                        <div className="flex flex-col gap-1.5 w-full lg:w-32 lg:mx-auto">
+                          <span className="text-[10px] tracking-widest text-[var(--color-muted)] lg:text-center">
+                            {secret.failedAttempts} / {secret.maxFailedAttempts} ATTEMPTS
+                          </span>
+                          <div className="h-1 bg-[var(--color-line)] w-full">
+                            <div
+                              className={`h-full ${
+                                pressure >= 70 ? "bg-[var(--color-accent)]" : pressure > 0 ? "bg-amber-500" : "bg-emerald-500"
+                              }`}
+                              style={{ width: `${pressure}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="col-span-2 flex flex-col gap-1 lg:items-end lg:block lg:text-right">
+                        <span className="lg:hidden text-[10px] tracking-widest text-[var(--color-muted)]">/// LAST RETRIEVAL</span>
+                        <span className="text-[10px] tracking-widest text-[var(--color-muted)]">
+                          {secret.lastViewedAt ? formatDate(secret.lastViewedAt) : "NEVER"}
+                        </span>
+                      </div>
+                      
+                      <div className="col-span-2 flex items-center gap-2 mt-4 lg:mt-0 lg:justify-end">
+                        <button
+                          type="button"
+                          onClick={() => copyLink(secret.slug)}
+                          className="flex-1 lg:flex-none inline-flex items-center justify-center border border-[var(--color-line)] px-3 py-2 text-[10px] tracking-widest hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] transition-colors"
+                          title="COPY LINK"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRevoke(secret.slug)}
+                          className="flex-1 lg:flex-none inline-flex items-center justify-center border border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)] px-3 py-2 text-[10px] tracking-widest hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+                          title="REVOKE SECRET"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );

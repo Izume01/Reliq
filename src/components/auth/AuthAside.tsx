@@ -1,5 +1,5 @@
 import React from "react";
-import { LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
+import { LockKeyhole, ShieldCheck } from "lucide-react";
 
 interface AuthAsideProps {
   title: string;
@@ -8,63 +8,42 @@ interface AuthAsideProps {
 
 export default function AuthAside({ title, subtitle }: AuthAsideProps) {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-[linear-gradient(155deg,#fffbf5_4%,#f2e2c7_98%)] p-8 shadow-[0_24px_70px_rgba(120,70,30,0.13)]">
-      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[var(--color-accent)]/10 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-[var(--color-accent)]/8 blur-2xl" />
-
-      <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-line)] bg-white/70 px-3 py-1 text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-          <Sparkles className="h-3.5 w-3.5 text-[var(--color-accent)]" />
-          Reliq Auth
-        </span>
-
-        <h1 className="mt-5 font-dancing-script text-5xl leading-tight text-[var(--color-ink)] sm:text-6xl">
+    <section className="relative flex flex-col h-full justify-between rounded-none">
+      
+      <div>
+        <div className="flex justify-between items-center border-b border-[var(--color-line)] pb-4 mb-8">
+          <span className="text-xs font-mono text-[var(--color-muted)] tracking-widest uppercase">[ AUTH_PROTOCOL ]</span>
+        </div>
+        <h1 className="font-sans font-black uppercase tracking-tighter text-4xl leading-[0.9] text-[var(--color-ink)] sm:text-6xl mb-6">
           {title}
         </h1>
-        <p className="mt-3 max-w-lg text-sm leading-relaxed text-[var(--color-muted)]">
+        <p className="mt-4 max-w-md font-mono text-xs uppercase tracking-widest leading-relaxed text-[var(--color-muted)]">
           {subtitle}
         </p>
+      </div>
 
-        <div className="mt-8 rounded-2xl border border-[var(--color-line)] bg-white/70 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-            Logic Grid
-          </p>
-          <div className="mt-3 grid grid-cols-6 gap-2">
-            {Array.from({ length: 18 }).map((_, index) => (
-              <div
-                key={index}
-                className={`h-6 rounded-md border border-[var(--color-line)] ${
-                  index % 5 === 0
-                    ? "bg-[var(--color-accent)]/20"
-                    : index % 3 === 0
-                      ? "bg-[var(--color-paper)]"
-                      : "bg-white"
-                }`}
-              />
-            ))}
+      <div className="mt-16 flex flex-col gap-1 border-t border-l border-[var(--color-line)] bg-[var(--color-line)] p-[1px]">
+        
+        <div className="flex gap-4 items-start bg-[var(--color-surface)] p-6 group hover:bg-[var(--color-paper)] transition-colors">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center text-[var(--color-accent)]">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="font-sans font-bold text-lg uppercase tracking-tight text-[var(--color-ink)]">ACCOUNT OWNERSHIP</p>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-widest leading-relaxed text-[var(--color-muted)]">SECRETS REMAIN TIED TO YOUR CREATOR IDENTITY. ZERO LEAKS.</p>
           </div>
         </div>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <article className="rounded-xl border border-[var(--color-line)] bg-white/70 p-3">
-            <p className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-ink)]">
-              <ShieldCheck className="h-4 w-4 text-[var(--color-accent)]" />
-              Account ownership
-            </p>
-            <p className="mt-1 text-xs text-[var(--color-muted)]">
-              Secrets remain tied to creator identity.
-            </p>
-          </article>
-          <article className="rounded-xl border border-[var(--color-line)] bg-white/70 p-3">
-            <p className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-ink)]">
-              <LockKeyhole className="h-4 w-4 text-[var(--color-accent)]" />
-              Strong protection
-            </p>
-            <p className="mt-1 text-xs text-[var(--color-muted)]">
-              Password gates and lockout controls.
-            </p>
-          </article>
+        
+        <div className="flex gap-4 items-start bg-[var(--color-surface)] p-6 group hover:bg-[var(--color-paper)] transition-colors">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center text-[var(--color-accent)]">
+            <LockKeyhole className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="font-sans font-bold text-lg uppercase tracking-tight text-[var(--color-ink)]">STRONG PROTECTION</p>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-widest leading-relaxed text-[var(--color-muted)]">PASSWORD GATES AND STRICT ACCESS CONTROLS ENFORCED.</p>
+          </div>
         </div>
+        
       </div>
     </section>
   );

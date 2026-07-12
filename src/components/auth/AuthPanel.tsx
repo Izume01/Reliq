@@ -93,7 +93,7 @@ const AuthPanel = () => {
   if (sessionPending) {
     return (
       <div className="w-full px-6">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] px-4 py-3 text-sm text-neutral-400">
+        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] px-4 py-3 text-sm text-[var(--color-muted)]">
           Checking session...
         </div>
       </div>
@@ -129,7 +129,7 @@ const AuthPanel = () => {
             type="button"
             onClick={() => setMode("sign-in")}
             className={`rounded-lg px-3 py-1.5 text-xs ${
-              mode === "sign-in" ? "bg-white text-black" : "bg-[#1d1d1d] text-neutral-400"
+              mode === "sign-in" ? "bg-[var(--color-surface)] text-[var(--color-ink)]" : "bg-[#1d1d1d] text-[var(--color-muted)]"
             }`}
           >
             Sign in
@@ -138,7 +138,7 @@ const AuthPanel = () => {
             type="button"
             onClick={() => setMode("sign-up")}
             className={`rounded-lg px-3 py-1.5 text-xs ${
-              mode === "sign-up" ? "bg-white text-black" : "bg-[#1d1d1d] text-neutral-400"
+              mode === "sign-up" ? "bg-[var(--color-surface)] text-[var(--color-ink)]" : "bg-[#1d1d1d] text-[var(--color-muted)]"
             }`}
           >
             Sign up
@@ -172,7 +172,7 @@ const AuthPanel = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-neutral-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full rounded-lg bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-line)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Submitting..." : mode === "sign-up" ? "Create account" : "Sign in"}
           </button>

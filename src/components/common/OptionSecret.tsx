@@ -1,7 +1,6 @@
 "use client";
 import React, { useCallback } from "react";
 import useSecret from "@/lib/store/secret";
-import { Input } from "@/components/base/Input";
 import SecretButton from "@/components/common/SecretButton";
 import {
   MAX_FAILED_ATTEMPT_OPTIONS,
@@ -50,32 +49,28 @@ const OptionSecret = () => {
   );
 
   const selectClassName =
-    "w-full appearance-none rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm text-[var(--color-ink)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20";
+    "w-full appearance-none rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-3 font-mono text-xs uppercase tracking-widest text-[var(--color-ink)] focus:border-[var(--color-accent)] focus:outline-none transition-colors";
 
   return (
-    <section className="w-full space-y-5">
-      <p className="text-sm leading-relaxed text-[var(--color-muted)]">
-        Define expiration and lockout behavior before creating the link.
-      </p>
-
-      <div className="grid gap-4">
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-semibold text-[var(--color-ink)]">
-            Password (optional)
+    <section className="w-full space-y-8 flex flex-col h-full">
+      <div className="grid gap-6">
+        <div className="space-y-3">
+          <label htmlFor="password" className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-ink)]">
+            /// PASSWORD (OPTIONAL)
           </label>
-          <Input
+          <input
             id="password"
             type="password"
             value={password}
             onChange={handlePasswordChange}
-            placeholder="Add extra protection"
-            className="bg-white"
+            placeholder="ADD EXTRA ENCRYPTION LAYER"
+            className="w-full rounded-none border border-[var(--color-line)] bg-[var(--color-paper)] px-4 py-3 font-mono text-xs tracking-widest text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="ttl" className="text-sm font-semibold text-[var(--color-ink)]">
-            Time to live
+        <div className="space-y-3">
+          <label htmlFor="ttl" className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-ink)]">
+            /// TIME TO LIVE (TTL)
           </label>
           <select
             id="ttl"
@@ -92,12 +87,12 @@ const OptionSecret = () => {
           </select>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <label
             htmlFor="max-failed-attempts"
-            className="text-sm font-semibold text-[var(--color-ink)]"
+            className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-ink)]"
           >
-            Max failed password attempts
+            /// MAX FAILED ATTEMPTS
           </label>
           <select
             id="max-failed-attempts"
@@ -108,18 +103,15 @@ const OptionSecret = () => {
           >
             {MAX_FAILED_ATTEMPT_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option} attempts
+                {option} ATTEMPTS
               </option>
             ))}
           </select>
-          <p className="text-sm text-[var(--color-muted)]">
-            Lockout applies only when a password is set.
-          </p>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="max-views" className="text-sm font-semibold text-[var(--color-ink)]">
-            Delete after X successful views
+        <div className="space-y-3">
+          <label htmlFor="max-views" className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-ink)]">
+            /// MAX VIEWS
           </label>
           <select
             id="max-views"
@@ -130,17 +122,16 @@ const OptionSecret = () => {
           >
             {MAX_VIEW_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option} {option === 1 ? "view" : "views"}
+                {option} {option === 1 ? "VIEW" : "VIEWS"}
               </option>
             ))}
           </select>
-          <p className="text-sm text-[var(--color-muted)]">
-            Secret will be destroyed after this number of successful decryptions.
-          </p>
         </div>
       </div>
 
-      <SecretButton />
+      <div className="mt-auto border-t border-[var(--color-line)] pt-8">
+        <SecretButton />
+      </div>
     </section>
   );
 };

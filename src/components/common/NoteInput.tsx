@@ -13,26 +13,28 @@ const NoteInput: React.FC = () => {
   );
 
   return (
-    <section className="w-full space-y-2">
-      <div className="flex items-center justify-between text-sm text-[var(--color-muted)]">
-        <label htmlFor="note" className="font-medium text-[var(--color-ink)]">
-          Secret content
+    <section className="w-full flex flex-col h-full border border-[var(--color-line)] bg-[var(--color-paper)] p-[1px]">
+      <div className="flex items-center justify-between bg-[var(--color-surface)] px-4 py-2 text-[10px] uppercase font-mono tracking-widest text-[var(--color-muted)] border-b border-[var(--color-line)]">
+        <label htmlFor="note" className="text-[var(--color-ink)] font-bold">
+          /// SECRET_CONTENT
         </label>
-        <span>{notes.length} chars</span>
+        <span>{notes.length} CHARS</span>
       </div>
       <textarea
         id="note"
         value={notes}
         onChange={handleChange}
-        placeholder="Paste API keys, credentials, or any sensitive text."
-        className="h-56 w-full resize-none rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3 text-base leading-relaxed text-[var(--color-ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] placeholder:text-[var(--color-muted)]/75 focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
-        rows={8}
+        placeholder="PASTE API KEYS, CREDENTIALS, OR ANY SENSITIVE TEXT."
+        className="h-64 w-full resize-none rounded-none bg-[var(--color-surface)] px-6 py-6 font-mono text-sm tracking-widest text-[var(--color-ink)] shadow-none placeholder:text-[var(--color-muted)]/50 focus:outline-none transition-colors"
+        rows={10}
         spellCheck={false}
         aria-label="Secret note input"
       />
-      <p className="text-sm text-[var(--color-muted)]">
-        The message is encrypted before it leaves your browser.
-      </p>
+      <div className="bg-[var(--color-surface)] px-4 py-3 border-t border-[var(--color-line)]">
+        <p className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-muted)]">
+          &gt; SECRET IS ENCRYPTED BEFORE LEAVING THE BROWSER.
+        </p>
+      </div>
     </section>
   );
 };

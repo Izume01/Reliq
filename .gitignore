@@ -17,7 +17,9 @@
 # next.js
 /.next/
 /out/
-
+.agents
+.idea
+.github
 # production
 /build
 

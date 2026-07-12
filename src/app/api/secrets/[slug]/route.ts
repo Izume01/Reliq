@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
 import prisma from "@/lib/db/primsa";
 import redis from "@/lib/db/redis";
 import { auth } from "@/lib/auth/auth";
@@ -8,7 +9,7 @@ export async function DELETE(
   context: { params: Promise<{ slug: string }> }
 ) {
   const session = await auth.api.getSession({
-    headers: request.headers,
+    headers: await headers(),
   });
 
   if (!session?.user?.id) {

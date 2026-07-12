@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import useSecret from "@/lib/store/secret";
 import { authClient } from "@/lib/auth/client";
@@ -45,42 +45,42 @@ const SecretButton = () => {
 
   const handleCreateSecret = async () => {
     if (!isAuthenticated) {
-      toast.error("Sign in to create a secret");
+      toast.error("SIGN IN TO CREATE A SECRET");
       return;
     }
 
     if (!notes.trim()) {
-      toast.error("Enter secret content");
+      toast.error("ENTER SECRET CONTENT");
       return;
     }
 
     if (timetolive === 0) {
-      toast.error("Choose a TTL option");
+      toast.error("CHOOSE A TTL OPTION");
       return;
     }
 
     if (!isSupportedTTL(timetolive)) {
-      toast.error("Unsupported TTL option");
+      toast.error("UNSUPPORTED TTL OPTION");
       return;
     }
 
     if (!isSupportedMaxFailedAttempts(maxFailedAttempts)) {
-      toast.error("Unsupported security option");
+      toast.error("UNSUPPORTED SECURITY OPTION");
       return;
     }
 
     if (!isSupportedMaxViews(maxViews)) {
-      toast.error("Unsupported max views option");
+      toast.error("UNSUPPORTED MAX VIEWS OPTION");
       return;
     }
 
     if (password && password.length < PASSWORD_MIN_LENGTH) {
-      toast.error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+      toast.error(`PASSWORD MUST BE AT LEAST ${PASSWORD_MIN_LENGTH} CHARACTERS`);
       return;
     }
 
     if (!aesKey) {
-      toast.error("Missing encryption key");
+      toast.error("MISSING ENCRYPTION KEY");
       return;
     }
 
@@ -112,7 +112,7 @@ const SecretButton = () => {
         const errorPayload = (await response
           .json()
           .catch(() => ({}))) as ErrorPayload;
-        toast.error(errorPayload.error || "Failed to create secret");
+        toast.error(errorPayload.error || "FAILED TO CREATE SECRET");
         return;
       }
 
@@ -121,13 +121,13 @@ const SecretButton = () => {
       setModel(true);
       setIsSuccess(true);
       setPassword("");
-      toast.success("Secret created");
+      toast.success("PAYLOAD SECURED");
 
       setTimeout(() => {
         setIsSuccess(false);
       }, 1800);
     } catch {
-      toast.error("Failed to encrypt and submit secret");
+      toast.error("FAILED TO ENCRYPT AND SUBMIT");
     } finally {
       setIsLoading(false);
     }
@@ -140,28 +140,33 @@ const SecretButton = () => {
       type="button"
       onClick={handleCreateSecret}
       disabled={disabled}
-      className={`mt-1 w-full rounded-xl px-5 py-3 text-sm font-semibold transition ${
+      className={`group flex w-full items-center justify-between border p-5 font-sans text-sm font-black uppercase tracking-widest transition-all ${
         isSuccess
-          ? "bg-emerald-600 text-white"
-          : "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-strong)]"
-      } ${disabled ? "cursor-not-allowed opacity-65" : ""}`}
+          ? "border-emerald-500 bg-emerald-500/10 text-emerald-500"
+          : "border-[var(--color-accent)] bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-strong)]"
+      } ${disabled && !isSuccess ? "cursor-not-allowed opacity-50" : ""}`}
     >
-      {isLoading ? (
-        <span className="flex items-center justify-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Creating secure link...
-        </span>
-      ) : sessionPending ? (
-        "Checking session..."
-      ) : !isAuthenticated ? (
-        "Sign in to create secret"
-      ) : isSuccess ? (
-        <span className="flex items-center justify-center gap-2">
-          <CheckCircle2 className="h-4 w-4" />
-          Link ready
-        </span>
-      ) : (
-        "Generate secret link"
+      <span className="flex items-center gap-3">
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            ENCRYPTING PAYLOAD...
+          </>
+        ) : sessionPending ? (
+          "CHECKING SESSION..."
+        ) : !isAuthenticated ? (
+          "SIGN IN REQUIRED"
+        ) : isSuccess ? (
+          <>
+            <CheckCircle2 className="h-4 w-4" />
+            SECURE LINK READY
+          </>
+        ) : (
+          "GENERATE SECURE LINK"
+        )}
+      </span>
+      {!(isLoading || isSuccess || sessionPending || !isAuthenticated) && (
+        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
       )}
     </button>
   );

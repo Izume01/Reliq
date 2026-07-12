@@ -15,23 +15,31 @@ export default async function SignupPage() {
   }
 
   return (
-    <main className="px-6 py-12 sm:px-8 sm:py-14">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-3">
+    <main className="flex min-h-[100dvh] items-center justify-center px-6 py-12 sm:px-8">
+      <div className="w-full max-w-6xl">
+        <div className="grid w-full gap-[1px] bg-[var(--color-line)] border border-[var(--color-line)] lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="hidden lg:block bg-[var(--color-surface)] p-8 sm:p-12">
           <Link
             href="/"
-            className="inline-flex text-xs uppercase tracking-[0.12em] text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+            className="inline-flex font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors mb-6"
           >
-            ← Back to landing
+            [ ABORT / BACK TO ROOT ]
           </Link>
           <AuthAside
             title="Create your account."
             subtitle="Start account-bound secret sharing with a secure-by-default flow and immediate dashboard access."
           />
-        </div>
+          </div>
 
-        <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 shadow-[0_18px_60px_rgba(120,70,30,0.12)] sm:p-7">
-          <AuthForm mode="signup" />
+          <div className="bg-[var(--color-surface)] p-8 sm:p-12">
+            <Link
+              href="/"
+              className="lg:hidden inline-flex font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors mb-8"
+            >
+              [ ABORT / BACK TO ROOT ]
+            </Link>
+            <AuthForm mode="signup" />
+          </div>
         </div>
       </div>
     </main>
